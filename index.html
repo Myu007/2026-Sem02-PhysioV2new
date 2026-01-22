@@ -1,0 +1,4221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Quiz Application - 200 Questions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        /* Dark Mode - FIXED VISIBILITY ISSUES */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .header {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .quiz-section {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .controls-panel,
+        body.dark-mode .question-grid {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        /* FIXED: Dark mode title visibility */
+        body.dark-mode .title {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode controls title visibility */
+        body.dark-mode .controls-title,
+        body.dark-mode .grid-title {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode jump to question label visibility */
+        body.dark-mode .jump-to-question label {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode question text visibility */
+        body.dark-mode .question-text {
+            color: #e0e0e0 !important;
+        }
+
+        body.dark-mode .answer-option {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .answer-option:hover:not(.disabled) {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        /* FIXED: Dark mode option labels (A, B, C, D, E) visibility */
+        body.dark-mode .option-label {
+            background: #706fd3 !important;
+            color: #ffffff !important;
+        }
+
+        /* FIXED: Dark mode correct/incorrect answer visibility */
+        body.dark-mode .answer-option.correct {
+            background: #4caf50 !important;
+            color: #ffffff !important;
+            border-color: #388e3c !important;
+        }
+
+        body.dark-mode .answer-option.incorrect {
+            background: #f44336 !important;
+            color: #ffffff !important;
+            border-color: #d32f2f !important;
+        }
+
+        body.dark-mode .answer-option.correct .option-label,
+        body.dark-mode .answer-option.incorrect .option-label {
+            background: rgba(255, 255, 255, 0.3) !important;
+            color: #ffffff !important;
+        }
+
+        /* FIXED: Dark mode correct answer mode visibility */
+        body.dark-mode .answer-option.correct-answer-mode {
+            background: #4caf50 !important;
+            color: #ffffff !important;
+            border: 2px solid #388e3c !important;
+            font-weight: 600;
+        }
+
+        body.dark-mode .answer-option.other-answer-mode {
+            background: #40407a !important;
+            color: #b0b0b0 !important;
+            border: 1px solid #706fd3 !important;
+            opacity: 0.7;
+        }
+
+        body.dark-mode .grid-item {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .grid-item:hover {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        /* Exam Mode Body Styles */
+        body.exam-mode {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        body.exam-mode.dark-mode {
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Container */
+        body.exam-mode .container {
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Header */
+        body.exam-mode .header {
+            background: #e8e8e8;
+            border-radius: 0;
+            margin-bottom: 0;
+            padding: 15px 20px;
+            box-shadow: none;
+            border-bottom: 1px solid #ddd;
+        }
+
+        body.exam-mode.dark-mode .header {
+            background: #2c2c54;
+            border-bottom: 1px solid #40407a;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Title */
+        body.exam-mode .title {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        body.exam-mode.dark-mode .title {
+            color: #e0e0e0;
+        }
+
+        .timer-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Timer Section */
+        body.exam-mode .timer-section {
+            gap: 20px;
+        }
+
+        .timer-settings {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .timer-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Exam Mode Timer Settings - Show in exam mode */
+        body.exam-mode .timer-settings {
+            display: flex;
+        }
+
+        /* NEW: Question Shuffle Settings for Exam Mode */
+        .question-shuffle-settings {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #fff3e0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #ff9800;
+            transition: all 0.3s ease;
+        }
+
+        .question-shuffle-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Show question shuffle settings only in exam mode */
+        body.exam-mode .question-shuffle-settings {
+            display: flex;
+        }
+
+        .question-count-settings {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #e3f2fd;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #2196f3;
+            transition: all 0.3s ease;
+        }
+
+        .question-count-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Show question count settings only in exam mode */
+        body.exam-mode .question-count-settings {
+            display: flex;
+        }
+
+        .timer-input, .count-input {
+            width: 60px;
+            padding: 5px 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .timer-label, .count-label, .shuffle-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .timer-start-btn, .count-reset-btn, .shuffle-toggle-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .timer-start-btn:hover, .count-reset-btn:hover, .shuffle-toggle-btn:hover {
+            background: #218838;
+        }
+
+        .count-reset-btn {
+            background: #2196f3;
+        }
+
+        .count-reset-btn:hover {
+            background: #1976d2;
+        }
+
+        .shuffle-toggle-btn {
+            background: #ff9800;
+        }
+
+        .shuffle-toggle-btn:hover {
+            background: #f57c00;
+        }
+
+        .shuffle-toggle-btn.active {
+            background: #4caf50;
+        }
+
+        .shuffle-toggle-btn.active:hover {
+            background: #388e3c;
+        }
+
+        .timer {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 25px;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #d32f2f;
+            font-weight: 600;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Timer */
+        body.exam-mode .timer {
+            background: #ffcdd2;
+            border: 1px solid #f44336;
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: #d32f2f;
+            font-size: 14px;
+        }
+
+        .timer.active {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        /* Exam Mode Active Timer */
+        body.exam-mode .timer.active {
+            background: #ffcdd2;
+            border-color: #f44336;
+            color: #d32f2f;
+        }
+
+        /* NEW: Question Shuffle Display */
+        .question-shuffle-display {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            border-radius: 8px;
+            padding: 8px 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #e65100;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        body.exam-mode .question-shuffle-display {
+            display: flex;
+        }
+
+        .question-shuffle-display.active {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        /* NEW: Question Count Display */
+        .question-count-display {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 8px 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #1565c0;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        body.exam-mode .question-count-display {
+            display: flex;
+        }
+
+        .timer-reset-btn, .shuffle-reset-btn, .count-reset-display-btn {
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .timer-reset-btn.visible,
+        .shuffle-reset-btn.visible,
+        .count-reset-display-btn.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .timer-reset-btn:hover,
+        .shuffle-reset-btn:hover,
+        .count-reset-display-btn:hover {
+            background: #e64a19;
+        }
+
+        .count-reset-display-btn {
+            background: #2196f3;
+        }
+
+        .count-reset-display-btn:hover {
+            background: #1976d2;
+        }
+
+        .timer-expired-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .timer-expired-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .timer-expired-message {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .result-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .result-message {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .result-message.passed {
+            border-left: 5px solid #4caf50;
+        }
+
+        .result-message.failed {
+            border-left: 5px solid #f44336;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .result-title.passed {
+            color: #4caf50;
+        }
+
+        .result-title.failed {
+            color: #f44336;
+        }
+
+        .result-stats {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .exit-btn {
+            background: #37474f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .exit-btn:hover {
+            background: #455a64;
+        }
+
+        /* Exam Mode Exit Button */
+        body.exam-mode .exit-btn {
+            background: #2c3e50;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Main Content */
+        body.exam-mode .main-content {
+            grid-template-columns: 1fr;
+            gap: 0;
+            background: #f5f5f5;
+        }
+
+        body.exam-mode.dark-mode .main-content {
+            background: #1a1a2e;
+        }
+
+        .quiz-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease, all 0.3s ease;
+        }
+
+        /* Exam Mode Quiz Section */
+        body.exam-mode .quiz-section {
+            background: #f5f5f5;
+            border-radius: 0;
+            padding: 20px;
+            box-shadow: none;
+            margin-bottom: 0;
+        }
+
+        body.exam-mode.dark-mode .quiz-section {
+            background: #1a1a2e;
+        }
+
+        .quiz-section.timer-expired {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .question-header {
+            background: #3f51b5;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Question Header */
+        body.exam-mode .question-header {
+            background: #0D0A69;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            justify-content: space-between;
+        }
+
+        .question-number {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Question Number */
+        body.exam-mode .question-number {
+            background: #34495e;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 14px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .question-counter {
+            background: #4caf50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* Exam Mode Question Counter */
+        body.exam-mode .question-counter {
+            display: inline-block;
+        }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* Exam Mode Question Text - NO OVERLAPPING NUMBER */
+        body.exam-mode .question-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        body.exam-mode.dark-mode .question-text {
+            color: #e0e0e0;
+        }
+
+        .answers {
+            space-y: 12px;
+        }
+
+        .answer-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Exam Mode Answer Options */
+        body.exam-mode .answer-option {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 0;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        body.exam-mode.dark-mode .answer-option {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        .answer-option:hover:not(.disabled) {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+
+        /* Exam Mode Answer Option Hover */
+        body.exam-mode .answer-option:hover:not(.disabled) {
+            background: #e8f4fd;
+            border-color: #2196f3;
+            transform: none;
+        }
+
+        body.exam-mode.dark-mode .answer-option:hover:not(.disabled) {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        .answer-option.selected {
+            background: #2196f3;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        /* Exam Mode Selected Answer */
+        body.exam-mode .answer-option.selected {
+            background: #2196f3;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        .answer-option.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #388e3c;
+        }
+
+        .answer-option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #d32f2f;
+        }
+
+        .answer-option.correct-answer-mode {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 2px solid #4caf50;
+            font-weight: 600;
+        }
+
+        .answer-option.other-answer-mode {
+            background: #f5f5f5;
+            color: #757575;
+            border: 1px solid #e0e0e0;
+            opacity: 0.7;
+        }
+
+        .answer-option.disabled {
+            cursor: not-allowed;
+        }
+
+        .answer-option.timer-expired {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .option-label {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        /* Exam Mode Option Label */
+        body.exam-mode .option-label {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            background: white;
+            font-size: 0;
+            position: relative;
+        }
+
+        body.exam-mode .answer-option.selected .option-label {
+            background: #2196f3;
+            border-color: #2196f3;
+        }
+
+        body.exam-mode .answer-option.selected .option-label::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .answer-option.selected .option-label,
+        .answer-option.correct .option-label,
+        .answer-option.incorrect .option-label {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .option-text {
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Navigation */
+        body.exam-mode .navigation {
+            justify-content: flex-start;
+            gap: 15px;
+            border-top: none;
+            margin-top: 20px;
+            padding-top: 0;
+        }
+
+        .nav-btn {
+            background: #3f51b5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        /* Exam Mode Navigation Buttons */
+        body.exam-mode .nav-btn {
+            background: #2196f3;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .nav-btn:hover {
+            background: #303f9f;
+        }
+
+        body.exam-mode .nav-btn:hover {
+            background: #1976d2;
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Sidebar - HIDE IN EXAM MODE */
+        body.exam-mode .sidebar {
+            display: none;
+        }
+
+        .controls-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .mode-toggles {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .toggle-btn:hover {
+            background: #e9ecef;
+        }
+
+        .toggle-btn.active {
+            background: #3f51b5;
+            color: white;
+            border-color: #3f51b5;
+        }
+
+        .jump-to-question {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .jump-to-question label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .jump-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .jump-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .jump-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .jump-btn:hover {
+            background: #1976d2;
+        }
+
+        .question-grid {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .grid-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+        }
+
+        .grid-item {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .grid-item:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .grid-item.current {
+            background: #3f51b5;
+            color: white;
+            border-color: #3f51b5;
+        }
+
+        .grid-item.answered {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        
+        /* NEW: Correct answer in grid (Green) */
+        .grid-item.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        
+        /* NEW: Incorrect answer in grid (Red) */
+        .grid-item.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+
+        .grid-item.unanswered {
+            background: #ff9800;
+            color: white;
+            border-color: #ff9800;
+        }
+
+        /* FIXED: SINGLE Exam Mode Question Grid - Navy Blue Header and White Background */
+        .exam-question-grid {
+            display: none;
+            margin-top: 20px;
+        }
+
+        body.exam-mode .exam-question-grid {
+            display: block;
+        }
+
+        .exam-grid-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: #0D0A69;
+            padding: 10px 15px;
+            border-radius: 6px;
+            color: white;
+        }
+
+        .exam-grid-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .exam-grid-toggle {
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .exam-grid-toggle:hover {
+            background: #4a6741;
+        }
+
+        /* FIXED: White background for exam grid container */
+        .exam-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+            gap: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            background: white;
+            padding: 15px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .exam-grid-container.collapsed {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            padding: 0;
+        }
+
+        /* FIXED: Exam Grid Items - Red color like reference image */
+        .exam-grid-item {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #c0392b;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 11px;
+            transition: all 0.3s;
+            background: #e74c3c;
+            color: white;
+        }
+
+        .exam-grid-item:hover {
+            background: #c0392b;
+        }
+
+        .exam-grid-item.current {
+            background: #3498db;
+            border-color: #2980b9;
+        }
+
+        /* Answered questions - Red background like in reference */
+        .exam-grid-item.answered {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
+
+        /* Unanswered questions - Red background like in reference */
+        .exam-grid-item.unanswered {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
+
+        /* FIXED: Hide mobile question dropdown in exam mode */
+        .mobile-question-dropdown {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /* FIXED: Hide mobile dropdown in exam mode */
+        body.exam-mode .mobile-question-dropdown {
+            display: none !important;
+        }
+
+        .dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .dropdown-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .dropdown-arrow {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-arrow.expanded {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .dropdown-content.expanded {
+            max-height: 300px;
+            overflow-y: auto; /* Added scroll functionality */
+            padding-bottom: 10px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .timer-section {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .quiz-section {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .answer-option {
+                padding: 12px 15px;
+                gap: 10px;
+            }
+
+            .option-label {
+                width: 25px;
+                height: 25px;
+                font-size: 12px;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-btn {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .sidebar {
+                order: -1;
+            }
+
+            .controls-panel,
+            .question-grid {
+                padding: 15px;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+                gap: 6px;
+            }
+
+            .grid-item {
+                width: 35px;
+                height: 35px;
+                font-size: 11px;
+            }
+
+            /* Show mobile dropdown instead of sidebar grid in NON-EXAM mode only */
+            .question-grid {
+                display: none;
+            }
+
+            .mobile-question-dropdown {
+                display: block;
+            }
+
+            /* FIXED: Hide mobile dropdown in exam mode on mobile too */
+            body.exam-mode .mobile-question-dropdown {
+                display: none !important;
+            }
+
+            /* Exam Mode Mobile Adjustments */
+            body.exam-mode .container {
+                padding: 0;
+            }
+
+            body.exam-mode .header {
+                padding: 10px 15px;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            body.exam-mode .timer-section {
+                gap: 10px;
+            }
+
+            body.exam-mode .quiz-section {
+                padding: 15px;
+            }
+
+            body.exam-mode .question-text {
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+
+            body.exam-mode .answer-option {
+                padding: 10px 12px;
+                margin-bottom: 6px;
+            }
+
+            body.exam-mode .option-label {
+                width: 18px;
+                height: 18px;
+            }
+
+            body.exam-mode .navigation {
+                flex-direction: row;
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            body.exam-mode .nav-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                width: auto;
+            }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .title {
+                font-size: 18px;
+            }
+
+            body.exam-mode .title {
+                font-size: 14px;
+            }
+
+            .timer-input, .count-input {
+                width: 50px;
+                font-size: 12px;
+            }
+
+            .timer {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            body.exam-mode .timer {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .question-text {
+                font-size: 14px;
+            }
+
+            body.exam-mode .question-text {
+                font-size: 13px;
+            }
+
+            .answer-option {
+                padding: 10px 12px;
+            }
+
+            body.exam-mode .answer-option {
+                padding: 8px 10px;
+            }
+
+            .option-text {
+                font-size: 14px;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+                gap: 4px;
+            }
+
+            .grid-item {
+                width: 30px;
+                height: 30px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">Enhanced Quiz Application</div>
+            <div class="timer-section">
+                <div class="timer-settings">
+                    <span class="timer-label">Minutes:</span>
+                    <input type="number" class="timer-input" id="minutesInput" value="30" min="1" max="180">
+                    <span class="timer-label">Seconds:</span>
+                    <input type="number" class="timer-input" id="secondsInput" value="0" min="0" max="59">
+                    <button class="timer-start-btn" onclick="startTimer()">Start</button>
+                </div>
+                
+                <div class="question-shuffle-settings">
+                    <span class="shuffle-label">🔀 Shuffle Questions:</span>
+                    <button class="shuffle-toggle-btn" id="shuffleToggleBtn" onclick="toggleQuestionShuffle()">Enable</button>
+                </div>
+                
+                <div class="question-count-settings">
+                    <span class="count-label">Questions:</span>
+                    <input type="number" class="count-input" id="questionCountInput" value="200" min="1" max="200">
+                    <span class="count-label">/ 200</span>
+                    <button class="count-reset-btn" onclick="setQuestionCount()">Set</button>
+                </div>
+                
+                <div class="timer" id="timer">
+                    <span>⏰</span>
+                    <span id="timerDisplay">No timer set</span>
+                    <button class="timer-reset-btn" id="timerResetBtn" onclick="resetTimer()">Reset</button>
+                </div>
+                
+                <div class="question-shuffle-display" id="questionShuffleDisplay">
+                    <span>🔀</span>
+                    <span id="shuffleDisplayText">Shuffle: Off</span>
+                    <button class="shuffle-reset-btn" id="shuffleResetBtn" onclick="resetQuestionShuffle()">Reset</button>
+                </div>
+                
+                <div class="question-count-display" id="questionCountDisplay">
+                    <span>📊</span>
+                    <span id="countDisplayText">200 / 200</span>
+                    <button class="count-reset-display-btn" id="countResetDisplayBtn" onclick="resetQuestionCount()">Reset</button>
+                </div>
+                
+                <button class="exit-btn" onclick="exitQuiz()">
+                    <span>🚪</span>
+                    <span id="exitBtnText">Exit</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="quiz-section" id="quizSection">
+                <div class="question-header">
+                    <div class="question-number" id="questionNumber">Question 1</div>
+                    <div class="question-counter" id="questionCounter">1 / 200</div>
+                </div>
+                
+                <div class="question-text" id="questionText">
+                    Loading question...
+                </div>
+                
+                <div class="answers" id="answersContainer">
+                    </div>
+                
+                <div class="navigation">
+                    <button class="nav-btn" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
+                    <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">Next</button>
+                    <button class="nav-btn" id="finishBtn" onclick="finishQuiz()" style="display: none;">Finish</button>
+                    <button class="nav-btn" id="submitBtn" onclick="finishQuiz()" style="display: none;">Submit</button>
+                </div>
+
+                <div class="mobile-question-dropdown" id="mobileQuestionDropdown">
+                    <div class="dropdown-header" onclick="toggleMobileDropdown()">
+                        <div class="dropdown-title">Question Navigator</div>
+                        <div class="dropdown-arrow" id="dropdownArrow">▼</div>
+                    </div>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <div class="grid-container" id="mobileQuestionGrid">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="exam-question-grid" id="examQuestionGrid">
+                    <div class="exam-grid-header">
+                        <div class="exam-grid-title">Question Navigator</div>
+                        <button class="exam-grid-toggle" id="examGridToggle" onclick="toggleExamGrid()">Collapse</button>
+                    </div>
+                    <div class="exam-grid-container" id="examGridContainer">
+                        </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="controls-panel">
+                    <div class="controls-title">Quiz Controls</div>
+                    <div class="mode-toggles">
+                        <button class="toggle-btn" id="darkModeBtn" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+                        <button class="toggle-btn" id="answerModeBtn" onclick="toggleAnswerMode()">💡 Answer Mode</button>
+                        <button class="toggle-btn" id="questionShuffleModeBtn" onclick="toggleQuestionShuffleMode()">🔀 Shuffle Questions</button>
+                        <button class="toggle-btn" id="examModeBtn" onclick="toggleExamMode()">🎓 Simulate Exam Mode</button>
+                    </div>
+                    <div class="jump-to-question">
+                        <label for="jumpInput">Jump to Question:</label>
+                        <div class="jump-input-group">
+                            <input type="number" class="jump-input" id="jumpInput" min="1" max="200" placeholder="Enter question number">
+                            <button class="jump-btn" onclick="jumpToQuestionNumber()">Go</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-grid">
+                    <div class="grid-title">Question Navigator</div>
+                    <div class="grid-container" id="questionGrid">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="timer-expired-overlay" id="timerExpiredOverlay">
+        <div class="timer-expired-message">
+            <h2>⏰ Time's Up!</h2>
+            <p>The timer has expired. Your quiz has been automatically submitted.</p>
+            <button class="nav-btn" onclick="hideTimerExpiredOverlay()">Continue</button>
+        </div>
+    </div>
+
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-message" id="resultMessage">
+            <div class="result-title" id="resultTitle">Quiz Completed!</div>
+            <div class="result-stats" id="resultStats">
+                </div>
+            <button class="nav-btn" onclick="hideResultOverlay()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data
+        const questions = [
+        {
+            question: "Which of the following is the most important determinant of extracellular volume (ECF)?",
+            answers: [
+                { text: "Amount of Na+ in the ECF", correct: true },
+                { text: "Amount of K+ in the ECF", correct: false },
+                { text: "Protein content in the ECF", correct: false },
+                { text: "Amount of Ca++ in the ECF", correct: false },
+            ]
+        },
+        {
+            question: "What is this Homeostasis",
+            answers: [
+                { text: "provides for the tight regulation of all physiological variables", correct: true },
+                { text: "must always be restored using negative feedback mechanisms", correct: false },
+                { text: "is the sum of all chemical reactions in the body", correct: false },
+                { text: "is a combination of positive and negative feedback mechanisms", correct: false },
+                { text: "is the sum of all physical reactions in the body", correct: false },
+            ]
+        },
+        {
+            question: "After you eat lunch, nerve cells in your stomach respond to the distension (the stimulus) resulting from the food. They relay this information to ________.",
+            answers: [
+                { text: "A control center", correct: true },
+                { text: "A set point", correct: false },
+                { text: "Effectors", correct: false },
+                { text: "Sensors", correct: false },
+                { text: "Receptors", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best describes the structural and functional unit of life?",
+            answers: [
+                { text: "cell", correct: true },
+                { text: "organelle", correct: false },
+                { text: "tissue", correct: false },
+                { text: "organ", correct: false },
+                { text: "system", correct: false },
+            ]
+        },
+        {
+            question: "Which cellular organelle is primarily responsible for energy (ATP) production in eukaryotic cells?",
+            answers: [
+                { text: "Mitochondrion", correct: true },
+                { text: "golgi apparatus", correct: false },
+                { text: "lysosome", correct: false },
+                { text: "endoplasmic reticulum", correct: false },
+                { text: "peroxisome", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following correctly matches the junction with its major protein?",
+            answers: [
+                { text: "Gap junction – Connexin", correct: true },
+                { text: "Desmosome – Claudin", correct: false },
+                { text: "Tight junction – Cadherin", correct: false },
+                { text: "Adherens junction – Integrin", correct: false },
+                { text: "Hemidesmosome – Connexin", correct: false },
+            ]
+        },
+        {
+            question: "Which statement best describes the Na⁺/K⁺ ATPase pump?",
+            answers: [
+                { text: "Pumps 3 Na⁺ out and 2 K⁺ in using ATP", correct: true },
+                { text: "Pumps 2 Na⁺ out and 3 K⁺ in", correct: false },
+                { text: "Uses facilitated diffusion", correct: false },
+                { text: "Works only when membrane is depolarized", correct: false },
+                { text: "Is an example of secondary active transport", correct: false },
+            ]
+        },
+        {
+            question: "During the depolarization phase of an action potential, which change occurs?",
+            answers: [
+                { text: "Voltage-gated Na⁺ channels open, Na⁺ moves into the cell", correct: true },
+                { text: "Voltage-gated K⁺ channels open, K⁺ moves out", correct: false },
+                { text: "Na⁺/K⁺ pump becomes inactivated", correct: false },
+                { text: "Cell becomes more negative inside", correct: false },
+                { text: "Chloride ions enter the cell", correct: false },
+            ]
+        },
+        {
+            question: "Repolarization of the neuronal membrane occurs mainly due to:",
+            answers: [
+                { text: "Opening of voltage-gated K⁺ channels and efflux of K⁺", correct: true },
+                { text: "Closure of K⁺ channels", correct: false },
+                { text: "Activation of Na⁺/K⁺ pump only", correct: false },
+                { text: "Influx of Na⁺ through voltage-gated channels", correct: false },
+                { text: "Influx of Cl⁻", correct: false },
+            ]
+        },
+        {
+            question: "Which event is responsible for the refractory period during an action potential?",
+            answers: [
+                { text: "Inactivation of Na⁺ channels", correct: true },
+                { text: "Opening of Ca²⁺ channels", correct: false },
+                { text: "Continuous operation of Na⁺/K⁺ ATPase", correct: false },
+                { text: "Closure of K⁺ channels", correct: false },
+                { text: "Activation of ligand-gated receptors", correct: false },
+            ]
+        },
+        {
+            question: "The sarcomere is a functional unit which gives skeletal and cardiac muscles their striated appearance, which was first described by Van Leeuwenhoek. A sarcomere is defined as the segment between two neighboring Z-lines. They act as an anchoring point of the actin filaments. Surrounding the Z-line is the region of the I-band. 1- Band is the zone of thin filaments that is not superimposed by thick filaments. Named for their properties under a polarizing microscope, an A-band contains the entire length of a single thick filament. The Anisotropic band contains both thick and thin filaments. Which of the following decreases in length during the contraction of skeletal muscle fiber?",
+            answers: [
+                { text: "I band of the sarcomere", correct: true },
+                { text: "A band of the sarcomere", correct: false },
+                { text: "Thick filaments", correct: false },
+                { text: "Thin filaments", correct: false },
+            ]
+        },
+        {
+            question: "Which phase of the neuronal action potential corresponds to the absolute refractory period?",
+            answers: [
+                { text: "Period when Na⁺ channels are inactivated", correct: true },
+                { text: "Early depolarization", correct: false },
+                { text: "Late repolarization", correct: false },
+                { text: "Hyperpolarization phase", correct: false },
+                { text: "When K⁺ conductance decreases", correct: false },
+            ]
+        },
+        {
+            question: "Where is extends Pseudo H zone in a sarcomere?",
+            answers: [
+                { text: "Two sides of M line", correct: true },
+                { text: "Two I bands", correct: false },
+                { text: "Two Z line", correct: false },
+                { text: "A and I band", correct: false },
+            ]
+        },
+        {
+            question: "At rest, myosin heads are bound with adenosine diphosphate (said to be in a \"cocked\" position) in relation to the thin filament that does not have Ca 2+ bound to the troponin- tropomyosin complex. Ca 2+ bound to the troponin- tropomyosin complex induces a conformational change in the thin filament that allows for myosin heads to cross-bridge with thin filament actin. Which one of the following triggers the detachment of the myosin head from the actin filament?",
+            answers: [
+                { text: "Binding of ATP to head", correct: true },
+                { text: "Entry of Ca into sarcoplasmic reticulum", correct: false },
+                { text: "Change in troponin c configuration", correct: false },
+                { text: "Hydrolysis of ATP to ADP and Pi", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following proteins is present in skeletal muscles, but absent in a smooth muscle?",
+            answers: [
+                { text: "Troponin", correct: true },
+                { text: "Tropomyosin", correct: false },
+                { text: "Actin", correct: false },
+                { text: "Myosin", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best explains the “power stroke” during cross-bridge cycling in skeletal muscle?",
+            answers: [
+                { text: "Release of ADP and Pi from the myosin head", correct: true },
+                { text: "ATP binding to myosin head", correct: false },
+                { text: "Hydrolysis of ATP to ADP + Pi", correct: false },
+                { text: "Reattachment of myosin to actin", correct: false },
+                { text: "Detachment of actin from myosin", correct: false },
+            ]
+        },
+        {
+            question: "Which statement about excitation–contraction coupling in skeletal muscle is TRUE?",
+            answers: [
+                { text: "DHPR acts primarily as a voltage sensor triggering RyR1-mediated Ca²⁺ release", correct: true },
+                { text: "Calcium enters directly from extracellular fluid to initiate contraction", correct: false },
+                { text: "DHPR functions as a calcium channel allowing Ca²⁺ influx into the cytosol", correct: false },
+                { text: "Calcium binds directly to tropomyosin to initiate contraction", correct: false },
+                { text: "ATP is not required for calcium reuptake into the SR", correct: false },
+            ]
+        },
+        {
+            question: "Which event terminates skeletal muscle contraction?",
+            answers: [
+                { text: "Reuptake of Ca²⁺ into the SR by SERCA pumps", correct: true },
+                { text: "Detachment of actin and myosin by ADP release", correct: false },
+                { text: "Closure of DHPR channels", correct: false },
+                { text: "Hydrolysis of ATP at myosin head", correct: false },
+                { text: "Removal of acetylcholine by acetylcholinesterase", correct: false },
+            ]
+        },
+        {
+            question: "The functional unit of the nervous system is the:",
+            answers: [
+                { text: "Neuron", correct: true },
+                { text: "Neuroglial cell", correct: false },
+                { text: "Dendrite", correct: false },
+                { text: "Synapse", correct: false },
+                { text: "Nerve fiber", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following neurotransmitters is excitatory at most synapses in the central nervous system?",
+            answers: [
+                { text: "Glutamate", correct: true },
+                { text: "GABA", correct: false },
+                { text: "Glycine", correct: false },
+                { text: "Serotonin", correct: false },
+                { text: "Dopamine", correct: false },
+            ]
+        },
+        {
+            question: "The hypothalamus maintains homeostasis by:",
+            answers: [
+                { text: "Controlling autonomic and endocrine functions", correct: true },
+                { text: "Initiating voluntary motor control", correct: false },
+                { text: "Regulating emotional memory and behavior", correct: false },
+                { text: "Producing cerebrospinal fluid", correct: false },
+                { text: "Coordinating posture and balance", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following brain structures is primarily responsible for coordination of voluntary movement and posture?",
+            answers: [
+                { text: "Cerebellum", correct: true },
+                { text: "Basal ganglia", correct: false },
+                { text: "Limbic system", correct: false },
+                { text: "Thalamus", correct: false },
+                { text: "Reticular formation", correct: false },
+            ]
+        },
+        {
+            question: "Which function is primarily associated with the basal ganglia?",
+            answers: [
+                { text: "Initiation and control of learned motor patterns", correct: true },
+                { text: "Integration of sensory input to the cortex", correct: false },
+                { text: "Maintenance of body temperature", correct: false },
+                { text: "Secretion of cerebrospinal fluid", correct: false },
+                { text: "Control of respiration and cardiovascular centers", correct: false },
+            ]
+        },
+        {
+            question: "The limbic system is primarily involved in:",
+            answers: [
+                { text: "Emotional behavior, motivation, and memory formation", correct: true },
+                { text: "Visual and auditory reflexes", correct: false },
+                { text: "Fine motor coordination", correct: false },
+                { text: "Regulation of muscle tone", correct: false },
+                { text: "Voluntary motor execution", correct: false },
+            ]
+        },
+        {
+            question: "Across which of following is seen unidirectional transpot:",
+            answers: [
+                { text: "Synapse", correct: true },
+                { text: "Axon", correct: false },
+                { text: "Dendrite", correct: false },
+                { text: "Cell body", correct: false },
+            ]
+        },
+        {
+            question: "Which neurotransmitter is released from preganglionic fibers of both sympathetic and parasympathetic systems?",
+            answers: [
+                { text: "Acetylcholine", correct: true },
+                { text: "Noradrenaline", correct: false },
+                { text: "Dopamine", correct: false },
+                { text: "Adrenaline", correct: false },
+                { text: "Serotonin", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best explains why the effect of sympathetic stimulation is more widespread and longer lasting than that of parasympathetic stimulation?",
+            answers: [
+                { text: "The adrenal medulla releases catecholamines into the blood", correct: true },
+                { text: "Sympathetic postganglionic fibers are longer", correct: false },
+                { text: "Sympathetic ganglia are located close to target organs", correct: false },
+                { text: "Parasympathetic neurotransmitter is degraded slowly", correct: false },
+                { text: "Sympathetic nerves do not use acetylcholine", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following receptors mediates relaxation of bronchial smooth muscle during sympathetic activation?",
+            answers: [
+                { text: "β₂ adrenergic", correct: true },
+                { text: "α₁ adrenergic", correct: false },
+                { text: "β₁ adrenergic", correct: false },
+                { text: "M₂ muscarinic", correct: false },
+                { text: "M₃ muscarinic", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following structures has only sympathetic innervation and lacks parasympathetic supply?",
+            answers: [
+                { text: "Sweat glands", correct: true },
+                { text: "Urinary bladder", correct: false },
+                { text: "Heart", correct: false },
+                { text: "Salivary glands", correct: false },
+                { text: "Iris sphincter muscle", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best describes the action of the parasympathetic nervous system on the urinary bladder?",
+            answers: [
+                { text: "Contraction of detrusor muscle and relaxation of internal sphincter", correct: true },
+                { text: "Relaxation of detrusor muscle and contraction of internal sphincter", correct: false },
+                { text: "Contraction of detrusor and external sphincter", correct: false },
+                { text: "Relaxation of detrusor and external sphincter", correct: false },
+                { text: "Relaxation of detrusor without effect on sphincter", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is NOT caused by sympathetic stimulation?",
+            answers: [
+                { text: "Increased venous capacitance", correct: true },
+                { text: "Increased HR", correct: false },
+                { text: "Increased BP", correct: false },
+                { text: "Increased total peripheral resistance", correct: false },
+            ]
+        },
+        {
+            question: "A pool of presynaptic neurons innervate the dendrites of a postsynaptic neuron. Electrical signals are transferred from the dendrites to the soma of the postsynaptic neuron by which process?",
+            answers: [
+                { text: "Diffusion", correct: true },
+                { text: "Capacitive discharge", correct: false },
+                { text: "Active transport", correct: false },
+                { text: "Electrotonic conduction", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best describes the essential components of a reflex arc in the correct sequence?",
+            answers: [
+                { text: "Receptor → Sensory neuron → Interneuron → Motor neuron → Effector", correct: true },
+                { text: "Receptor → Motor neuron → Effector → Sensory neuron → Spinal cord", correct: false },
+                { text: "Sensory neuron → Receptor → Effector → Motor neuron → Brain", correct: false },
+                { text: "Sensory neuron → Brain → Motor neuron → Effector", correct: false },
+                { text: "Receptor → Brain → Spinal cord → Motor neuron → Effector", correct: false },
+            ]
+        },
+        {
+            question: "The stretch reflex (myotatic reflex) is an example of which type of reflex?",
+            answers: [
+                { text: "Monosynaptic reflex", correct: true },
+                { text: "Disynaptic reflex", correct: false },
+                { text: "Polysynaptic reflex", correct: false },
+                { text: "Crossed reflex", correct: false },
+                { text: "Conditioned reflex", correct: false },
+            ]
+        },
+        {
+            question: "In a decerebrate animal, which of the following reflex changes is most characteristic?",
+            answers: [
+                { text: "Exaggerated extensor tone due to uninhibited vestibulospinal activity", correct: true },
+                { text: "Loss of all stretch reflexes", correct: false },
+                { text: "Hypotonia due to spinal shock", correct: false },
+                { text: "Flexor hypertonia due to corticospinal excitation", correct: false },
+                { text: "Bilateral Babinski sign", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following fibers are primarily responsible for mediating the inverse stretch reflex?",
+            answers: [
+                { text: "Ib afferents from Golgi tendon organs", correct: true },
+                { text: "Ia afferents from muscle spindle primary endings", correct: false },
+                { text: "II afferents from secondary spindle endings", correct: false },
+                { text: "γ-motor efferents to intrafusal fibers", correct: false },
+                { text: "Group C unmyelinated fibers", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following nerve ganglia are responsible for the secretion of saliva?",
+            answers: [
+                { text: "Trigeminal nerve", correct: true },
+                { text: "Vagus nerve", correct: false },
+                { text: "Olfactory nerve", correct: false },
+                { text: "Optic nerve", correct: false },
+            ]
+        },
+        {
+            question: "Which is the colored is the colored part of the eye?",
+            answers: [
+                { text: "Iris", correct: true },
+                { text: "Retina", correct: false },
+                { text: "Aqueous humor", correct: false },
+                { text: "Cornea", correct: false },
+                { text: "Skin", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best explains how the central nervous system differentiates between modalities (touch, pain, temperature) when all sensory impulses are transmitted as action potentials?",
+            answers: [
+                { text: "By the labeled line coding of sensory pathways", correct: true },
+                { text: "By the amplitude of the action potential", correct: false },
+                { text: "By the duration of receptor potential", correct: false },
+                { text: "By the rate of neurotransmitter release at the receptor", correct: false },
+                { text: "By summation of excitatory postsynaptic potentials", correct: false },
+            ]
+        },
+        {
+            question: "During sensory adaptation, receptor potential amplitude gradually declines with time despite constant stimulation. Which of the following most accurately explains this phenomenon?",
+            answers: [
+                { text: "Inactivation of generator potential–dependent channels or mechanical desensitization", correct: true },
+                { text: "Decreased membrane permeability to Na⁺ and Ca²⁺", correct: false },
+                { text: "Increased activation of Na⁺/K⁺-ATPase restoring resting potential", correct: false },
+                { text: "Reduction in action potential conduction velocity", correct: false },
+                { text: "Postsynaptic hyperpolarization", correct: false },
+            ]
+        },
+        {
+            question: "In the somatosensory system, increasing the intensity of a tactile stimulus results in:",
+            answers: [
+                { text: "Recruitment of additional sensory units and increased firing frequency", correct: true },
+                { text: "Greater amplitude of individual action potentials", correct: false },
+                { text: "Increase in conduction velocity of existing fibers", correct: false },
+                { text: "Inactivation of inhibitory interneurons", correct: false },
+                { text: "Activation of only high-threshold nociceptors", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following receptor types is least likely to exhibit significant adaptation?",
+            answers: [
+                { text: "Nociceptors", correct: true },
+                { text: "Thermoreceptors", correct: false },
+                { text: "Pacinian corpuscles", correct: false },
+                { text: "Meissner’s corpuscles", correct: false },
+                { text: "Photoreceptors", correct: false },
+            ]
+        },
+        {
+            question: "The potential changes that initiate action potentials in the retina are generated by the action of light on photosensitive compounds in the rods and cones. When light is absorbed by these substances, their structure changes and this t riggers a sequence of event s that initiates the neural activity. Which of the following layers of the retina does light enter the eye pass through first?",
+            answers: [
+                { text: "Retinal ganglion layer", correct: true },
+                { text: "Outer nuclear layer", correct: false },
+                { text: "Outer plexiform layer", correct: false },
+                { text: "Inner nuclear layer", correct: false },
+            ]
+        },
+        {
+            question: "The afferent fibers in the auditory division of the 8th CN end in dorsal and ventral cochlear nuclei. From there, auditory impulses pass by various routes to the inferior colliculi, the centers for auditory reflexes, and via the medial geniculate body in the thalamus to the auditory cortex, which is located on",
+            answers: [
+                { text: "Superior part of temporal lobe", correct: true },
+                { text: "Limbic system", correct: false },
+                { text: "Posterior part of parietal lobe", correct: false },
+                { text: "Occipital part", correct: false },
+            ]
+        },
+        {
+            question: "The Organ of Corti on the basilar membrane extends from the apex to the base of the cochlea and thus has a spiral shape. This structure contains the highly specialized auditory receptors (hair cells) whose processes pierce the tough, membrane-like reticular lamina that is supported by the pillar cells or rods of Corti. Which of the following ions initiates the transmission of sound by the organ of Corti?",
+            answers: [
+                { text: "Potassium influx", correct: true },
+                { text: "Sodium influx", correct: false },
+                { text: "Sodium efflux", correct: false },
+                { text: "Potassium refflux", correct: false },
+            ]
+        },
+        {
+            question: "The optic nerve fibers from the nasal retina of each eye decussate at the optic chiasm. Which visual field would be lost if the right optic tract were damaged?",
+            answers: [
+                { text: "Entire left visual field", correct: true },
+                { text: "Right temporal and left nasal fields", correct: false },
+                { text: "Right nasal and left temporal fields", correct: false },
+                { text: "Entire right visual field", correct: false },
+                { text: "Central visual field only", correct: false },
+            ]
+        },
+        {
+            question: "In bright light, photoreceptor adaptation (light adaptation) involves which key cellular mechanism?",
+            answers: [
+                { text: "Closure of Ca²⁺-permeable channels causing disinhibition of guanylate cyclase", correct: true },
+                { text: "Increased intracellular cGMP synthesis", correct: false },
+                { text: "Activation of rhodopsin kinase leading to prolonged hyperpolarization", correct: false },
+                { text: "Decreased activity of transducin to limit PDE activation", correct: false },
+                { text: "Increased Na⁺ conductance in the outer segment membrane", correct: false },
+            ]
+        },
+        {
+            question: "Lesion of Meyer's loop (temporal radiation fibers) in the visual pathway produces which specific field defect?",
+            answers: [
+                { text: "Contralateral superior quadrantanopia", correct: true },
+                { text: "Homonymous hemianopia", correct: false },
+                { text: "Contralateral inferior quadrantanopia", correct: false },
+                { text: "Bitemporal hemianopia", correct: false },
+                { text: "Central scotoma", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following components primarily engages in oxygen transport in blood?",
+            answers: [
+                { text: "hemoglobin", correct: true },
+                { text: "albumin", correct: false },
+                { text: "fibrinogen", correct: false },
+                { text: "electrolytes", correct: false },
+                { text: "antibodies", correct: false },
+            ]
+        },
+        {
+            question: "In which of the following is no counterflow mechanism observed?",
+            answers: [
+                { text: "Eye", correct: true },
+                { text: "Heart", correct: false },
+                { text: "Testes", correct: false },
+                { text: "Kidney", correct: false },
+            ]
+        },
+        {
+            question: "Plasma differs from serum in that plasma contains:",
+            answers: [
+                { text: "Fibrinogen and clotting factors", correct: true },
+                { text: "Fibrin degradation products", correct: false },
+                { text: "Immunoglobulins", correct: false },
+                { text: "Albumin only", correct: false },
+                { text: "Higher concentration of urea and creatinine", correct: false },
+            ]
+        },
+        {
+            question: "The oxygen-binding capacity of hemoglobin decreases most when which of the following conditions occurs?",
+            answers: [
+                { text: "Increase in PCO₂ and temperature", correct: true },
+                { text: "Decrease in temperature", correct: false },
+                { text: "Decrease in 2,3-BPG", correct: false },
+                { text: "Increase in pH", correct: false },
+                { text: "Decrease in H⁺ concentration", correct: false },
+            ]
+        },
+        {
+            question: "A woman whose blood type is A, Rh positive and a man whose blood type is B, Rh positive come to the clinic with a 3-year-old girl whose blood type is 0, Rh negative. Which of the following would be correct about the attitude of these two adults towards this child?",
+            answers: [
+                { text: "This couple can be the natural parents of this child", correct: true },
+                { text: "The man can be the child's natural father, but the woman cannot be the natural mother", correct: false },
+                { text: "Neither adult can be the natural parent of this child", correct: false },
+                { text: "The woman can be the child's natural mother, but the man cannot be the natural father", correct: false },
+            ]
+        },
+        {
+            question: "Which hemoglobin variant shows the lowest affinity for 2,3-BPG?",
+            answers: [
+                { text: "HbF (α₂γ₂)", correct: true },
+                { text: "HbA (α₂β₂)", correct: false },
+                { text: "HbA₂ (α₂δ₂)", correct: false },
+                { text: "Carbaminohemoglobin", correct: false },
+                { text: "Methemoglobin", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following conditions would shift the oxygen-hemoglobin dissociation curve farthest to the left?",
+            answers: [
+                { text: "Hypothermia with decreased 2,3-BPG", correct: true },
+                { text: "Fever with respiratory alkalosis", correct: false },
+                { text: "Acidosis with elevated CO₂", correct: false },
+                { text: "Chronic anemia", correct: false },
+                { text: "Increased levels of carboxyhemoglobin", correct: false },
+            ]
+        },
+        {
+            question: "Which statement correctly explains why venous blood has lower affinity for oxygen than arterial blood?",
+            answers: [
+                { text: "Higher CO₂ and H⁺ levels stabilize the deoxy-Hb (T) form", correct: true },
+                { text: "Reduced Fe²⁺ in Hb is oxidized to Fe³⁺", correct: false },
+                { text: "Dissolved CO₂ binds to Hb forming carboxyhemoglobin", correct: false },
+                { text: "Chloride shift increases bicarbonate in RBC cytosol", correct: false },
+                { text: "Venous plasma temperature is lower than arterial", correct: false },
+            ]
+        },
+        {
+            question: "The initial vascular response to vessel injury is mainly mediated by:",
+            answers: [
+                { text: "Serotonin and thromboxane A₂ released from platelets", correct: true },
+                { text: "Thrombin-induced fibrin formation", correct: false },
+                { text: "Activation of factor VII by tissue factor", correct: false },
+                { text: "Conversion of fibrinogen to fibrin", correct: false },
+                { text: "Activation of plasminogen", correct: false },
+            ]
+        },
+        {
+            question: "Platelets adhere to the subendothelial surface primarily through which molecular interaction?",
+            answers: [
+                { text: "Collagen binding to GP Ib via von Willebrand factor", correct: true },
+                { text: "Fibrin binding to GP IIb/IIIa receptors", correct: false },
+                { text: "Fibrinogen binding to GP Ib receptors", correct: false },
+                { text: "Thrombin binding directly to GP IIb/IIIa", correct: false },
+                { text: "Platelet phospholipid binding to calcium", correct: false },
+            ]
+        },
+        {
+            question: "During platelet activation, thrombin binds to PAR-1 receptors to:",
+            answers: [
+                { text: "Activate phospholipase C via Gq proteins, raising Ca²⁺", correct: true },
+                { text: "Increase intracellular cAMP via Gs proteins", correct: false },
+                { text: "Activate adenylyl cyclase via Gi proteins", correct: false },
+                { text: "Stimulate nitric-oxide synthase in platelets", correct: false },
+                { text: "Inhibit release of dense-granule contents", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following mechanisms provides negative feedback regulation in the coagulation cascade?",
+            answers: [
+                { text: "Protein C–Protein S complex inactivating factors Va and VIIIa", correct: true },
+                { text: "Thrombin activation of factor V", correct: false },
+                { text: "Plasmin-mediated fibrinolysis", correct: false },
+                { text: "Autoactivation of factor XII", correct: false },
+                { text: "Thrombin activation of factor XIII", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following describes the appearance of erythrocytes under a microscope?",
+            answers: [
+                { text: "Biconcave discs", correct: true },
+                { text: "Spherical cells", correct: false },
+                { text: "Irregular shapes", correct: false },
+                { text: "Rod-shaped", correct: false },
+                { text: "Concave discs", correct: false },
+            ]
+        },
+        {
+            question: "The ABO blood group antigens are best described as:",
+            answers: [
+                { text: "Glycoproteins and glycolipids present on red cell membranes", correct: true },
+                { text: "Glycolipids present on leukocyte membranes", correct: false },
+                { text: "Plasma proteins synthesized by the liver", correct: false },
+                { text: "Immunoglobulins of the IgG type", correct: false },
+                { text: "Antigens acquired only after exposure to foreign blood", correct: false },
+            ]
+        },
+        {
+            question: "The ABO incompatibility reaction is more likely to cause severe hemolysis than Rh incompatibility because:",
+            answers: [
+                { text: "ABO antibodies are naturally occurring and mainly IgM, which fixes complement", correct: true },
+                { text: "Rh antibodies are IgM and cannot cross placenta", correct: false },
+                { text: "ABO antibodies are IgG and cross placenta", correct: false },
+                { text: "Rh antigens are weakly immunogenic compared to ABO antigens", correct: false },
+                { text: "ABO antigens are found only on RBC membranes", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following genetic mutations would result in the Bombay blood group phenotype?",
+            answers: [
+                { text: "Mutation in FUT1 gene leading to lack of fucosyltransferase", correct: true },
+                { text: "Mutation in ABO gene on chromosome 9", correct: false },
+                { text: "Mutation in FUT2 gene affecting saliva secretion of antigens", correct: false },
+                { text: "Mutation in RHD gene leading to absence of D antigen", correct: false },
+                { text: "Deletion in glycophorin A gene", correct: false },
+            ]
+        },
+        {
+            question: "What are the \"Gate\" cells in the heart?",
+            answers: [
+                { text: "Cells in Purkinje fibers", correct: true },
+                { text: "Cells in AV node", correct: false },
+                { text: "Cells in his bundle", correct: false },
+                { text: "Cells in SA node", correct: false },
+            ]
+        },
+        {
+            question: "The greatest drop in systemic arterial blood pressure occurs in:",
+            answers: [
+                { text: "Pre-capillary resistance vessels", correct: true },
+                { text: "Capacitance vessels", correct: false },
+                { text: "Venules", correct: false },
+                { text: "Arterioles", correct: false },
+            ]
+        },
+        {
+            question: "Which ion plays the most critical role in maintaining the plateau phase (Phase 2) of the cardiac muscle action potential?",
+            answers: [
+                { text: "Calcium influx", correct: true },
+                { text: "Sodium influx", correct: false },
+                { text: "Potassium efflux", correct: false },
+                { text: "Chloride influx", correct: false },
+                { text: "Magnesium efflux", correct: false },
+            ]
+        },
+        {
+            question: "During which phase of the cardiac cycle are both the atrioventricular (AV) and semilunar valves closed while the ventricular volume remains constant?",
+            answers: [
+                { text: "Isovolumetric contraction", correct: true },
+                { text: "Atrial systole", correct: false },
+                { text: "Rapid ejection phase", correct: false },
+                { text: "Isovolumetric relaxation", correct: false },
+                { text: "Ventricular filling", correct: false },
+            ]
+        },
+        {
+            question: "In cardiac muscle, calcium for contraction primarily comes from which of the following sources?",
+            answers: [
+                { text: "Both sarcoplasmic reticulum and extracellular fluid", correct: true },
+                { text: "Sarcoplasmic reticulum only", correct: false },
+                { text: "Extracellular fluid only", correct: false },
+                { text: "Mitochondria", correct: false },
+                { text: "Endoplasmic reticulum", correct: false },
+            ]
+        },
+        {
+            question: "The Frank–Starling mechanism of the heart explains which of the following?",
+            answers: [
+                { text: "Increased stroke volume with increased venous return", correct: true },
+                { text: "Increased heart rate due to sympathetic stimulation", correct: false },
+                { text: "Decreased cardiac output with increased preload", correct: false },
+                { text: "Independent control of right and left ventricular output", correct: false },
+                { text: "Effect of acetylcholine on SA node", correct: false },
+            ]
+        },
+        {
+            question: "The second heart sound (52) is a short burst of auditory vibrations of varying intensity, frequency, quality, and duration. It has 2 audible components, the aortic closure sound (A2) and the pulmonic closure sound (P2). Which are normally split on inspiration and virtually single on expiration. s2 is produced in part by hemodynamic events immediately following the closure of the aortic and pulmonic valves. s2 occurs during?",
+            answers: [
+                { text: "First rapid filling", correct: true },
+                { text: "Sovolumic relaxation", correct: false },
+                { text: "Protodiastole", correct: false },
+                { text: "Diastasis", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best describes the sequence of mechanical events during isovolumetric relaxation?",
+            answers: [
+                { text: "Ventricular pressure decreases, semilunar valves close, AV valves remain closed", correct: true },
+                { text: "Ventricular pressure increases, semilunar valves close, AV valves open", correct: false },
+                { text: "Atrial pressure exceeds ventricular pressure, semilunar valves open", correct: false },
+                { text: "Ventricular volume increases while semilunar valves are open", correct: false },
+                { text: "Both AV and semilunar valves are open allowing backflow", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is the most important immediate determinant of cardiac output in a healthy individual?",
+            answers: [
+                { text: "Venous return", correct: true },
+                { text: "Afterload", correct: false },
+                { text: "Contractility", correct: false },
+                { text: "Heart rate", correct: false },
+                { text: "Peripheral resistance", correct: false },
+            ]
+        },
+        {
+            question: "An increase in which of the following will decrease cardiac output?",
+            answers: [
+                { text: "Excessive heart rate (>180 beats/min)", correct: true },
+                { text: "Heart rate up to 150 beats/min", correct: false },
+                { text: "Decreased afterload", correct: false },
+                { text: "Increased contractility", correct: false },
+                { text: "Increased venous return", correct: false },
+            ]
+        },
+        {
+            question: "Which phase of the cardiac action potential is responsible for the refractory period?",
+            answers: [
+                { text: "Plateau", correct: true },
+                { text: "Depolarization", correct: false },
+                { text: "Hyperpolarization", correct: false },
+                { text: "Rapid repolarization", correct: false },
+                { text: "Resting phase", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following mechanisms best explains the Frank–Starling law of the heart?",
+            answers: [
+                { text: "Increased calcium sensitivity of myofibrils with muscle stretch", correct: true },
+                { text: "Increased sympathetic stimulation", correct: false },
+                { text: "Increased vagal tone", correct: false },
+                { text: "Decreased end-diastolic volume", correct: false },
+                { text: "Increased afterload", correct: false },
+            ]
+        },
+        {
+            question: "When a person suddenly stands up from a supine position, which immediate cardiovascular response occurs due to baroreceptor reflex activation?",
+            answers: [
+                { text: "Increased heart rate and vasoconstriction", correct: true },
+                { text: "Increased parasympathetic discharge to SA node", correct: false },
+                { text: "Decreased sympathetic activity to arterioles", correct: false },
+                { text: "Decreased venous return and cardiac output", correct: false },
+                { text: "Increased release of atrial natriuretic peptide", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following changes most effectively raises mean arterial pressure in the short term?",
+            answers: [
+                { text: "Increased cardiac contractility", correct: true },
+                { text: "Increased systemic venous compliance", correct: false },
+                { text: "Vasodilation of resistance vessels", correct: false },
+                { text: "Decreased heart rate", correct: false },
+                { text: "Decreased circulating catecholamines", correct: false },
+            ]
+        },
+        {
+            question: "lncisura\" of the arterial pulse corresponds to:",
+            answers: [
+                { text: "Closure of the aortic valve", correct: true },
+                { text: "First heart sound", correct: false },
+                { text: "lsovolumetric relaxation", correct: false },
+                { text: "Third heart sound", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following vessels are known as the resistance vessels of the circulatory system?",
+            answers: [
+                { text: "Arterioles", correct: true },
+                { text: "Aorta", correct: false },
+                { text: "Capillaries", correct: false },
+                { text: "Venules", correct: false },
+                { text: "Veins", correct: false },
+            ]
+        },
+        {
+            question: "Which type of vessel shows the highest total cross-sectional area and the lowest mean velocity of blood flow?",
+            answers: [
+                { text: "Capillaries", correct: true },
+                { text: "Aorta", correct: false },
+                { text: "Arteries", correct: false },
+                { text: "Arterioles", correct: false },
+                { text: "Venules", correct: false },
+            ]
+        },
+        {
+            question: "According to Laplace’s law, which vessel type is least likely to rupture despite very low wall thickness?",
+            answers: [
+                { text: "Capillary", correct: true },
+                { text: "Aorta", correct: false },
+                { text: "Large artery", correct: false },
+                { text: "Small vein", correct: false },
+                { text: "Venule", correct: false },
+            ]
+        },
+        {
+            question: "Pleural pressure is positive in:",
+            answers: [
+                { text: "End of forced expiration", correct: true },
+                { text: "End of expiration", correct: false },
+                { text: "End of inspiration", correct: false },
+                { text: "Start or beginning of inspiration", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following muscles is primarily responsible for quiet inspiration at rest?",
+            answers: [
+                { text: "Diaphragm", correct: true },
+                { text: "Internal intercostal muscles", correct: false },
+                { text: "External oblique", correct: false },
+                { text: "Sternocleidomastoid", correct: false },
+                { text: "Rectus abdominis", correct: false },
+            ]
+        },
+        {
+            question: "During normal expiration at rest, which of the following statements is true?",
+            answers: [
+                { text: "It occurs due to elastic recoil of lungs and chest wall", correct: true },
+                { text: "It is an active process requiring muscle contraction", correct: false },
+                { text: "It is due to contraction of abdominal muscles", correct: false },
+                { text: "It depends on contraction of internal intercostals", correct: false },
+                { text: "It increases intrathoracic volume", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following pressures is always negative during normal quiet breathing?",
+            answers: [
+                { text: "Intrapleural pressure", correct: true },
+                { text: "Intrapulmonary pressure", correct: false },
+                { text: "Alveolar pressure during inspiration", correct: false },
+                { text: "Atmospheric pressure", correct: false },
+                { text: "Transpulmonary pressure", correct: false },
+            ]
+        },
+        {
+            question: "During quiet inspiration, which of the following events contributes most to the decrease in intrapleural pressure?",
+            answers: [
+                { text: "Contraction of the diaphragm", correct: true },
+                { text: "Contraction of internal intercostal muscles", correct: false },
+                { text: "Elastic recoil of the lungs", correct: false },
+                { text: "Relaxation of external intercostal muscles", correct: false },
+                { text: "Closure of glottis", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following statements correctly explains why the apex of the lung has a higher ventilation-perfusion (V/Q) ratio than the base?",
+            answers: [
+                { text: "Pulmonary capillaries at the apex are collapsed due to lower hydrostatic pressure", correct: true },
+                { text: "Pulmonary arterial pressure is highest at the apex", correct: false },
+                { text: "Airway resistance is greater at the apex", correct: false },
+                { text: "Alveolar ventilation is higher at the apex than at the base", correct: false },
+                { text: "Mixed venous blood reaches the apex first", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is used to measure the resistance in small airways:",
+            answers: [
+                { text: "Mid expiratory flow rate", correct: true },
+                { text: "FEV1", correct: false },
+                { text: "Vital capacity", correct: false },
+                { text: "Closing volume", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following lung volumes cannot be measured by a simple spirometer?",
+            answers: [
+                { text: "Residual volume", correct: true },
+                { text: "Tidal volume", correct: false },
+                { text: "Inspiratory reserve volume", correct: false },
+                { text: "Expiratory reserve volume", correct: false },
+                { text: "Vital capacity", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following statements about oxygen transport in blood is correct?",
+            answers: [
+                { text: "About 98% of oxygen is carried bound to hemoglobin", correct: true },
+                { text: "Most oxygen is transported dissolved in plasma", correct: false },
+                { text: "Oxyhemoglobin formation is a chemical reaction requiring ATP", correct: false },
+                { text: "Oxygen binding to hemoglobin decreases its affinity for the next molecule", correct: false },
+                { text: "Each gram of hemoglobin binds approximately 2 mL of O₂", correct: false },
+            ]
+        },
+        {
+            question: "The alveolar PO₂ (PAO₂) is lower than the inspired PO₂ mainly because of:",
+            answers: [
+                { text: "Addition of CO₂ and water vapor in alveolar air", correct: true },
+                { text: "Low barometric pressure", correct: false },
+                { text: "Rapid diffusion of O₂ into the blood", correct: false },
+                { text: "Decreased alveolar ventilation", correct: false },
+                { text: "Metabolic oxygen consumption", correct: false },
+            ]
+        },
+        {
+            question: "The difference between alveolar and arterial PO₂ (A–a gradient) increases in:",
+            answers: [
+                { text: "Diffusion block and V/Q mismatch", correct: true },
+                { text: "Normal aging", correct: false },
+                { text: "High altitude", correct: false },
+                { text: "Hyperventilation", correct: false },
+                { text: "Hypoventilation without lung disease", correct: false },
+            ]
+        },
+        {
+            question: "Oxygen consumption (VO₂) per minute in a healthy adult at rest is approximately:",
+            answers: [
+                { text: "250 mL/min", correct: true },
+                { text: "100 mL/min", correct: false },
+                { text: "150 mL/min", correct: false },
+                { text: "200 mL/min", correct: false },
+                { text: "300 mL/min", correct: false },
+            ]
+        },
+        {
+            question: "The conducting airway is made up of a variety of specialized cells that provide more than simply a conduit for air to reach the lung. The mucosal epithelium is attached to a thin basement membrane and beneath this, the lamina propria. Collectively these are referred to as the \"airway mucosa.\" Which of the following is referred to be conducting zone of the respiratory system?",
+            answers: [
+                { text: "Oth generation to 16th generation of airways", correct: true },
+                { text: "1st generation of airways", correct: false },
+                { text: "0th generation to 23rd generation of airways", correct: false },
+                { text: "16th to 23rd generation of airways", correct: false },
+            ]
+        },
+        {
+            question: "The primary respiratory rhythm generator is located in which of the following regions of the brainstem?",
+            answers: [
+                { text: "Pre-Bötzinger complex of medulla", correct: true },
+                { text: "Apneustic center of pons", correct: false },
+                { text: "Pneumotaxic center of pons", correct: false },
+                { text: "Dorsal respiratory group of medulla", correct: false },
+                { text: "Ventral respiratory group of medulla", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following statements about Hering–Breuer reflex is correct?",
+            answers: [
+                { text: "It is mediated by stretch receptors in the lungs", correct: true },
+                { text: "It prevents collapse of alveoli during expiration", correct: false },
+                { text: "It causes inspiratory stimulation", correct: false },
+                { text: "It occurs during quiet breathing only", correct: false },
+                { text: "It is activated by hypercapnia", correct: false },
+            ]
+        },
+        {
+            question: "During hypoxia at high altitude, the initial increase in ventilation is primarily due to:",
+            answers: [
+                { text: "Peripheral chemoreceptors", correct: true },
+                { text: "Central chemoreceptors", correct: false },
+                { text: "Baroreceptors", correct: false },
+                { text: "J receptors", correct: false },
+                { text: "Stretch receptors", correct: false },
+            ]
+        },
+        {
+            question: "A climber at high altitude hyperventilates. After a few days, ventilation remains high despite low arterial PCO₂. Which mechanism best explains this adaptation?",
+            answers: [
+                { text: "Increased CSF buffering capacity through HCO₃⁻ excretion", correct: true },
+                { text: "Desensitization of central chemoreceptors to CO₂", correct: false },
+                { text: "Inhibition of carotid body function", correct: false },
+                { text: "Accumulation of lactic acid stimulating medullary neurons", correct: false },
+                { text: "Inhibition of peripheral chemoreceptors by alkalosis", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best describes the role of the apneustic center in the pons?",
+            answers: [
+                { text: "Promotes prolonged inspiration by stimulating inspiratory neurons", correct: true },
+                { text: "Initiates the basic rhythm of breathing", correct: false },
+                { text: "Inhibits expiratory neurons in the medulla", correct: false },
+                { text: "Facilitates transition between inspiration and expiration", correct: false },
+                { text: "Suppresses hyperventilation during hypoxia", correct: false },
+            ]
+        },
+        {
+            question: "T3 has much greater biological activity than T4 and is specifically generated at its site of action in peripheral tissues by deiodination of T4. Both hormones are iodine containing amino acids. By which of the following types of transport across the cell membrane are iodide ions transported into the thyroid gland?",
+            answers: [
+                { text: "Receptor-mediated endocytosist", correct: true },
+                { text: "Simple diffusion", correct: false },
+                { text: "Pinocytosis", correct: false },
+                { text: "Active transport", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following hormones isn't depressed when hypothalamic function decreases?",
+            answers: [
+                { text: "Prolactine", correct: true },
+                { text: "Growth hormon", correct: false },
+                { text: "TSH", correct: false },
+                { text: "ACTH", correct: false },
+            ]
+        },
+        {
+            question: "A man eats a low-carbohydrate meal that is rich in proteins containing the amino acids that stimulate insulin secretion. Which f the following response accounts for the absence of hypoglycemia?",
+            answers: [
+                { text: "Stimulation of glucagon secretion", correct: true },
+                { text: "Suppression of somatomedin C secretion", correct: false },
+                { text: "Stimulation of cortisol secretion", correct: false },
+                { text: "Suppression of GH", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following correctly describes the feedback relationship between the hypothalamus, pituitary, and thyroid glands?",
+            answers: [
+                { text: "Thyroid hormones inhibit both TSH and TRH secretion", correct: true },
+                { text: "TSH inhibits TRH release", correct: false },
+                { text: "TRH inhibits TSH release", correct: false },
+                { text: "TSH stimulates TRH release", correct: false },
+                { text: "TRH increases T₄ degradation", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following accurately describes calcitonin’s physiological role?",
+            answers: [
+                { text: "Lowers plasma calcium by inhibiting osteoclast activity", correct: true },
+                { text: "Increases intestinal calcium absorption", correct: false },
+                { text: "Stimulates osteoclastic bone resorption", correct: false },
+                { text: "Increases renal calcium reabsorption", correct: false },
+                { text: "Enhances PTH secretion", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following statements best explains the mechanism of steroid hormone action?",
+            answers: [
+                { text: "They bind to nuclear receptors and modulate gene transcription", correct: true },
+                { text: "They activate adenylate cyclase and increase cAMP levels", correct: false },
+                { text: "They use Gq-protein–linked receptors activating phospholipase C", correct: false },
+                { text: "They bind to cell-surface receptors and open ion channels directly", correct: false },
+                { text: "They inhibit tyrosine kinase signaling pathways", correct: false },
+            ]
+        },
+        {
+            question: "A 45-year-old Indian immigrant presents to the physician with significantly enlarged thyroid gland. Serum T3/T4 levels are decreased. Iodine deficiency is suspected. Which of the following is the function of thyroid peroxidase?",
+            answers: [
+                { text: "Oxidation of iodide", correct: true },
+                { text: "Uptake of Na+-Iodide", correct: false },
+                { text: "Synthesis of iodide", correct: false },
+                { text: "Deiodination of Iodo-tyrosine", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is the main target organ for the hormone adrenocorticotropic hormone (ACTH)?",
+            answers: [
+                { text: "Adrenal cortex", correct: true },
+                { text: "Kidneys", correct: false },
+                { text: "Liver", correct: false },
+                { text: "Pancrease", correct: false },
+                { text: "ovary", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is a physiological effect of glucocorticoids (cortisol)?",
+            answers: [
+                { text: "Promote lipolysis and protein catabolism", correct: true },
+                { text: "Decrease blood glucose by increasing insulin sensitivity", correct: false },
+                { text: "Stimulate protein synthesis in muscles", correct: false },
+                { text: "Decrease gluconeogenesis in the liver", correct: false },
+                { text: "Increase capillary permeability causing edema", correct: false },
+            ]
+        },
+        {
+            question: "The major regulator of aldosterone secretion under normal conditions is:",
+            answers: [
+                { text: "Renin–angiotensin–aldosterone system (RAAS)", correct: true },
+                { text: "ACTH", correct: false },
+                { text: "Blood glucose", correct: false },
+                { text: "Plasma cortisol concentration", correct: false },
+                { text: "ANP from atria", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following correctly describes the zones of the adrenal cortex and their primary hormone products?",
+            answers: [
+                { text: "Zona glomerulosa – aldosterone; Zona fasciculata – cortisol; Zona reticularis – androgens", correct: true },
+                { text: "Zona glomerulosa – cortisol; Zona fasciculata – aldosterone; Zona reticularis – catecholamines", correct: false },
+                { text: "Zona glomerulosa – androgens; Zona fasciculata – catecholamines; Zona reticularis – cortisol", correct: false },
+                { text: "Zona fasciculata – aldosterone; Zona glomerulosa – cortisol; Zona reticularis – catecholamines", correct: false },
+                { text: "Zona reticularis – catecholamines; Zona medulla – androgens", correct: false },
+            ]
+        },
+        {
+            question: "A patient with Cushing’s syndrome due to a cortisol-secreting adrenal tumor will show:",
+            answers: [
+                { text: "Low ACTH and high cortisol", correct: true },
+                { text: "Elevated ACTH and low cortisol", correct: false },
+                { text: "Low ACTH and low cortisol", correct: false },
+                { text: "High ACTH and high cortisol", correct: false },
+                { text: "Normal ACTH and cortisol", correct: false },
+            ]
+        },
+        {
+            question: "Which enzyme converts norepinephrine → epinephrine in adrenal medulla?",
+            answers: [
+                { text: "Phenylethanolamine N-methyltransferase (PNMT)", correct: true },
+                { text: "Dopamine β-hydroxylase", correct: false },
+                { text: "Monoamine oxidase", correct: false },
+                { text: "Catechol-O-methyl transferase (COMT)", correct: false },
+                { text: "Tyrosine hydroxylase", correct: false },
+            ]
+        },
+        {
+            question: "Which receptor mediates most of the metabolic effects of epinephrine such as glycogenolysis and lipolysis?",
+            answers: [
+                { text: "β₂-adrenergic receptors", correct: true },
+                { text: "α₁-adrenergic receptors", correct: false },
+                { text: "α₂-adrenergic receptors", correct: false },
+                { text: "β₁-adrenergic receptors", correct: false },
+                { text: "Muscarinic M₃ receptors", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is the rate-limiting step in adrenal steroid hormone synthesis stimulated by ACTH?",
+            answers: [
+                { text: "Transport of cholesterol into mitochondria", correct: true },
+                { text: "Conversion of progesterone to 17-hydroxyprogesterone", correct: false },
+                { text: "Conversion of pregnenolone to progesterone", correct: false },
+                { text: "Hydroxylation of corticosterone to aldosterone", correct: false },
+                { text: "Conversion of cholesterol to LDL", correct: false },
+            ]
+        },
+        {
+            question: "Which enzyme deficiency leads to accumulation of 11-deoxycorticosterone (DOC) causing hypertension with low cortisol levels?",
+            answers: [
+                { text: "11β-hydroxylase deficiency", correct: true },
+                { text: "17α-hydroxylase deficiency", correct: false },
+                { text: "21-hydroxylase deficiency", correct: false },
+                { text: "3β-hydroxysteroid dehydrogenase deficiency", correct: false },
+                { text: "Aromatase deficiency", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following hormones has a permissive action at the onset of puberty?",
+            answers: [
+                { text: "leptin", correct: true },
+                { text: "Insulin", correct: false },
+                { text: "GnRH", correct: false },
+                { text: "Growth hormone", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following hormones is mediated anabolic action on protein?",
+            answers: [
+                { text: "Testosterone", correct: true },
+                { text: "Insulin", correct: false },
+                { text: "ACTH", correct: false },
+                { text: "TSH", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is the dominant hormone in the luteal phase?",
+            answers: [
+                { text: "Progesterone", correct: true },
+                { text: "Estrogen", correct: false },
+                { text: "Prolactin", correct: false },
+                { text: "Oxytocin", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following placental hormones has an action most similar to growth hormone and contributes to maternal insulin resistance during pregnancy?",
+            answers: [
+                { text: "Human placental lactogen (hPL)", correct: true },
+                { text: "Progesterone", correct: false },
+                { text: "Estrogen", correct: false },
+                { text: "hCG", correct: false },
+                { text: "Relaxin", correct: false },
+            ]
+        },
+        {
+            question: "A 30-year-old pregnant woman at 8 weeks gestation presents with nausea, vomiting, and breast tenderness. Which hormonal change is most likely responsible for these symptoms?",
+            answers: [
+                { text: "Increased estrogen", correct: true },
+                { text: "Decreased progesterone", correct: false },
+                { text: "Increased prolactin", correct: false },
+                { text: "Decreased hCG", correct: false },
+                { text: "Increased oxytocin", correct: false },
+            ]
+        },
+        {
+            question: "A woman is in labor and experiencing strong uterine contractions. The release of which hormone is most likely contributing to both uterine contractions and milk ejection?",
+            answers: [
+                { text: "Oxytocin", correct: true },
+                { text: "Estrogen", correct: false },
+                { text: "Prolactin", correct: false },
+                { text: "Relaxin", correct: false },
+                { text: "Progesterone", correct: false },
+            ]
+        },
+        {
+            question: "At which stage of meiosis is the secondary oocyte arrested until fertilization occurs?",
+            answers: [
+                { text: "Metaphase II", correct: true },
+                { text: "Prophase I", correct: false },
+                { text: "Metaphase I", correct: false },
+                { text: "Anaphase II", correct: false },
+                { text: "Prophase II", correct: false },
+            ]
+        },
+        {
+            question: "During the mid-cycle surge, estradiol exerts positive feedback on the hypothalamic–pituitary axis. Which of the following best explains this physiological event?",
+            answers: [
+                { text: "High estrogen increases sensitivity of gonadotrophs to GnRH", correct: true },
+                { text: "Progesterone inhibits GnRH pulse frequency", correct: false },
+                { text: "Low estrogen reduces LH secretion", correct: false },
+                { text: "Inhibin suppresses FSH and LH", correct: false },
+                { text: "FSH surge directly triggers ovulation", correct: false },
+            ]
+        },
+        {
+            question: "If the corpus luteum fails to form after ovulation, which hormonal change occurs first?",
+            answers: [
+                { text: "Decrease in progesterone", correct: true },
+                { text: "Increase in FSH", correct: false },
+                { text: "Decrease in estrogen", correct: false },
+                { text: "Decrease in LH", correct: false },
+                { text: "Increase in hCG", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following most accurately explains the mechanism of menstruation?",
+            answers: [
+                { text: "Decline in progesterone causes prostaglandin release leading to vasospasm and tissue necrosis", correct: true },
+                { text: "Sudden drop in estrogen leads to spiral artery constriction", correct: false },
+                { text: "FSH-induced apoptosis of endometrial cells", correct: false },
+                { text: "High LH causes shedding of the endometrium", correct: false },
+                { text: "Inhibin causes capillary rupture and endometrial breakdown", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following hormones is most critical for the initiation and maintenance of spermatogenesis?",
+            answers: [
+                { text: "Testosterone", correct: true },
+                { text: "LH", correct: false },
+                { text: "FSH", correct: false },
+                { text: "Prolactin", correct: false },
+                { text: "Inhibin", correct: false },
+            ]
+        },
+        {
+            question: "FSH acts on which of the following testicular cell types to support spermatogenesis?",
+            answers: [
+                { text: "Sertoli cells", correct: true },
+                { text: "Spermatogonia", correct: false },
+                { text: "Spermatocytes", correct: false },
+                { text: "Leydig cells", correct: false },
+                { text: "Myoid cells", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following hormones stimulates Leydig cells to produce testosterone?",
+            answers: [
+                { text: "LH", correct: true },
+                { text: "Estrogen", correct: false },
+                { text: "FSH", correct: false },
+                { text: "GnRH", correct: false },
+                { text: "Inhibin", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is the major site of conversion of testosterone to dihydrotestosterone (DHT) in males?",
+            answers: [
+                { text: "Prostate gland", correct: true },
+                { text: "Testis", correct: false },
+                { text: "Liver", correct: false },
+                { text: "Epididymis", correct: false },
+                { text: "Adrenal cortex", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best describes the function of the blood–testis barrier formed by Sertoli cells?",
+            answers: [
+                { text: "Prevents autoimmune destruction of developing germ cells", correct: true },
+                { text: "Prevents testosterone diffusion into seminiferous tubules", correct: false },
+                { text: "Facilitates free movement of immune cells into tubules", correct: false },
+                { text: "Enhances spermatogonial mitosis", correct: false },
+                { text: "Promotes vascularization of seminiferous tubules", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following statements correctly describes the negative feedback loop controlling testosterone levels?",
+            answers: [
+                { text: "Testosterone inhibits GnRH and LH secretion", correct: true },
+                { text: "Testosterone inhibits GnRH and FSH secretion", correct: false },
+                { text: "Inhibin inhibits LH and FSH secretion", correct: false },
+                { text: "FSH suppresses Leydig cell function", correct: false },
+                { text: "GnRH suppresses Leydig cell sensitivity", correct: false },
+            ]
+        },
+        {
+            question: "Gastric secretion is stimulated by the act of eating (cephalic phase) and the arrival of food in the stomach (gastric phase). The arrival of the food in the intestine also controls gastric secretion (intestinal phase). Gastric secretion of acid stimulation of the oral and gastric vagal afferents. Efferent vagal pathways synapse with submucous plexus neurons, which innervate secretory cells via several important bioactive molecules, including gastrin, histamine, and somatostatin. Which of the following does not secreted within the stomach?",
+            answers: [
+                { text: "Trypsin", correct: true },
+                { text: "Intrinsic factor", correct: false },
+                { text: "Lipase", correct: false },
+                { text: "Mucus", correct: false },
+            ]
+        },
+        {
+            question: "Endopeptidases are a group of hydrolases that catalyze the hydrolysis of peptidic bonds, and thus, hydrolyze proteins. These enzymes are also very chemo-, regio- and enantioselective, which are active under soft reaction conditions (pH 6-8) and are easily handled biocatalysts that do not require the presence of cofactors. They break peptide bonds of nonterminal amino acids (i.e. within the molecule). For this reason, endopeptidases cannot break down peptides into monomers. They are usually very specific for certain amino acids. Which of the following are not endopeptidases?",
+            answers: [
+                { text: "Carboxypeptidases", correct: true },
+                { text: "Chymotrypsin", correct: false },
+                { text: "Elastase", correct: false },
+                { text: "Trypsin", correct: false },
+            ]
+        },
+        {
+            question: "Question During cephalic phase of digestion, stimulation of vagus nerve leads to:",
+            answers: [
+                { text: "Release of gastrin and increased HCl secretion", correct: true },
+                { text: "Release of secretin from duodenal mucosa", correct: false },
+                { text: "Inhibition of gastric acid secretion", correct: false },
+                { text: "Inhibition of pancreatic enzyme release", correct: false },
+                { text: "Constriction of lower esophageal sphincter", correct: false },
+            ]
+        },
+        {
+            question: "A patient with vagotomy develops impaired gastric emptying for liquids. The major underlying reason is loss of:",
+            answers: [
+                { text: "Accommodation reflex of the stomach", correct: true },
+                { text: "Tonic contraction of the pyloric sphincter", correct: false },
+                { text: "Myenteric plexus function", correct: false },
+                { text: "Secretin-induced relaxation", correct: false },
+                { text: "Pancreatic bicarbonate secretion", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following statements regarding saliva is true under resting conditions?",
+            answers: [
+                { text: "It has higher bicarbonate than plasma", correct: true },
+                { text: "It is hypertonic to plasma", correct: false },
+                { text: "Sodium concentration exceeds potassium concentration", correct: false },
+                { text: "Flow rate has no effect on ionic composition", correct: false },
+                { text: "It is under sympathetic control only", correct: false },
+            ]
+        },
+        {
+            question: "The “Law of the intestine” refers to:",
+            answers: [
+                { text: "Proximal contraction and distal relaxation following distension", correct: true },
+                { text: "Proximal relaxation and distal contraction following distension", correct: false },
+                { text: "Reflex inhibition of peristalsis during fasting", correct: false },
+                { text: "Gastric receptive relaxation mediated by vagus", correct: false },
+                { text: "Reverse peristalsis initiated in colon", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following cells is the primary source of intrinsic factor, and what is its physiologic significance?",
+            answers: [
+                { text: "Parietal cell; essential for vitamin B12 absorption", correct: true },
+                { text: "Chief cell; aids in pepsin activation", correct: false },
+                { text: "Mucous neck cell; lubricates chyme", correct: false },
+                { text: "Enteroendocrine G-cell; stimulates acid secretion", correct: false },
+                { text: "Brunner’s gland; protects duodenal mucosa", correct: false },
+            ]
+        },
+        {
+            question: "During the intestinal phase of digestion, amino acids and peptides in the duodenum mainly stimulate which hormone to enhance pancreatic enzyme secretion?",
+            answers: [
+                { text: "Cholecystokinin", correct: true },
+                { text: "Secretin", correct: false },
+                { text: "Gastrin", correct: false },
+                { text: "Vasoactive intestinal peptide", correct: false },
+                { text: "Somatostatin", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following mechanisms explains glucose absorption from the intestinal lumen into enterocytes?",
+            answers: [
+                { text: "Secondary active transport with sodium via SGLT-1", correct: true },
+                { text: "Simple diffusion via GLUT-2 transporter", correct: false },
+                { text: "Facilitated diffusion via GLUT-5 transporter", correct: false },
+                { text: "Primary active transport using ATP hydrolysis", correct: false },
+                { text: "Countertransport with potassium", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following statements regarding gastric juice composition is correct?",
+            answers: [
+                { text: "Mucus neutralizes acid and forms part of gastric barrier", correct: true },
+                { text: "Pepsin is secreted in its active form by chief cells", correct: false },
+                { text: "HCl secretion requires the presence of carbonic anhydrase in chief cells", correct: false },
+                { text: "Intrinsic factor secretion is stimulated by secretin", correct: false },
+                { text: "Gastric acid secretion increases when pH falls below 2", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best describes the physiological role of enterokinase (enteropeptidase)?",
+            answers: [
+                { text: "Converts trypsinogen to trypsin in the duodenum", correct: true },
+                { text: "Converts trypsin to trypsinogen in the stomach", correct: false },
+                { text: "Converts chymotrypsin to trypsin in the pancreas", correct: false },
+                { text: "Hydrolyzes starch to maltose", correct: false },
+                { text: "Activates pepsinogen in acidic pH", correct: false },
+            ]
+        },
+        {
+            question: "A patient with steatorrhea has low levels of pancreatic lipase but normal bile secretion. Which step of fat digestion or absorption is primarily impaired?",
+            answers: [
+                { text: "Hydrolysis of triglycerides to monoglycerides", correct: true },
+                { text: "Emulsification of fat", correct: false },
+                { text: "Formation of micelles", correct: false },
+                { text: "Chylomicron synthesis", correct: false },
+                { text: "Bile salt reabsorption", correct: false },
+            ]
+        },
+        {
+            question: "In the regulation of pancreatic secretion, which hormone is most responsible for stimulating bicarbonate-rich fluid secretion from pancreatic ductal cells?",
+            answers: [
+                { text: "Secretin", correct: true },
+                { text: "Cholecystokinin", correct: false },
+                { text: "Gastrin", correct: false },
+                { text: "Motilin", correct: false },
+                { text: "Somatostatin", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following functions of the liver is not directly related to digestion?",
+            answers: [
+                { text: "Detoxification of ammonia to urea", correct: true },
+                { text: "Bile salt synthesis", correct: false },
+                { text: "Glycogen storage", correct: false },
+                { text: "Secretion of bile pigments", correct: false },
+                { text: "Emulsification of fats", correct: false },
+            ]
+        },
+        {
+            question: "A patient has obstruction of the common bile duct. Which of the following consequences is most likely?",
+            answers: [
+                { text: "Pale stools and steatorrhea", correct: true },
+                { text: "Decreased digestion of carbohydrates", correct: false },
+                { text: "Increased absorption of fat-soluble vitamins", correct: false },
+                { text: "Increased intestinal pH", correct: false },
+                { text: "Elevated bile salts in feces", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following substrates yields the highest respiratory quotient (RQ) upon oxidation?",
+            answers: [
+                { text: "Glucose", correct: true },
+                { text: "Protein", correct: false },
+                { text: "Fat", correct: false },
+                { text: "Ketone bodies", correct: false },
+                { text: "Alcohol", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is not an effect of Angiotensin II?",
+            answers: [
+                { text: "Increased diameter of blood vessels", correct: true },
+                { text: "Increased of Aldosterone secretion", correct: false },
+                { text: "Increased ADH secretion", correct: false },
+                { text: "Increased of thirst", correct: false },
+            ]
+        },
+        {
+            question: "The glomerular filtration rate (GFR) in a healthy adult is approximately:",
+            answers: [
+                { text: "125 mL/min", correct: true },
+                { text: "50 mL/min", correct: false },
+                { text: "150 mL/min", correct: false },
+                { text: "100 mL/min", correct: false },
+                { text: "250 mL/min", correct: false },
+            ]
+        },
+        {
+            question: "Where does urine acidification occur?",
+            answers: [
+                { text: "Proximal convoluted tubule", correct: true },
+                { text: "Distal convoluted tubule", correct: false },
+                { text: "Loop of Henle", correct: false },
+                { text: "Collecting duct", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is responsible for neutralization hydrochloric acid?",
+            answers: [
+                { text: "Bicarbonates", correct: true },
+                { text: "Plasma protein", correct: false },
+                { text: "Phosphates", correct: false },
+                { text: "Nitrates", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following changes would increase glomerular filtration rate (GFR) the most?",
+            answers: [
+                { text: "Constriction of efferent arteriole (moderate degree)", correct: true },
+                { text: "Constriction of afferent arteriole", correct: false },
+                { text: "Dilation of efferent arteriole", correct: false },
+                { text: "Increased plasma oncotic pressure", correct: false },
+                { text: "Increased Bowman’s capsular hydrostatic pressure", correct: false },
+            ]
+        },
+        {
+            question: "A decrease in systemic blood pressure is sensed by the juxtaglomerular apparatus (JGA). Which of the following is the most direct effect of this signal?",
+            answers: [
+                { text: "Increased renin release from granular cells", correct: true },
+                { text: "Increased atrial natriuretic peptide release", correct: false },
+                { text: "Decreased renin secretion", correct: false },
+                { text: "Decreased angiotensin II production", correct: false },
+                { text: "Increased sodium excretion", correct: false },
+            ]
+        },
+        {
+            question: "In chronic kidney disease, plasma urea and creatinine levels rise because:",
+            answers: [
+                { text: "Glomerular filtration rate decreases", correct: true },
+                { text: "Renal tubular secretion increases", correct: false },
+                { text: "Tubular reabsorption of urea decreases", correct: false },
+                { text: "Increased plasma protein breakdown", correct: false },
+                { text: "Increased hepatic production of creatinine", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is true regarding renal autoregulation of GFR?",
+            answers: [
+                { text: "Myogenic and tubuloglomerular feedback mechanisms maintain stable GFR", correct: true },
+                { text: "Depends mainly on systemic sympathetic tone", correct: false },
+                { text: "Operates only under hormonal control", correct: false },
+                { text: "Occurs only during extreme changes in blood pressure", correct: false },
+                { text: "Controlled exclusively by ADH", correct: false },
+            ]
+        },
+        {
+            question: "The main function of the renin–angiotensin–aldosterone system (RAAS) is to:",
+            answers: [
+                { text: "Increase sodium and water retention to raise blood pressure", correct: true },
+                { text: "Increase potassium excretion and decrease sodium reabsorption", correct: false },
+                { text: "Decrease GFR by afferent arteriole dilation", correct: false },
+                { text: "Inhibit aldosterone secretion", correct: false },
+                { text: "Stimulate ANP release", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following will stimulate renin secretion?",
+            answers: [
+                { text: "Sympathetic stimulation of β₁ receptors", correct: true },
+                { text: "Increased blood pressure", correct: false },
+                { text: "Increased NaCl delivery to macula densa", correct: false },
+                { text: "Hyperkalemia", correct: false },
+                { text: "High plasma osmolarity", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best defines renal clearance?",
+            answers: [
+                { text: "Volume of plasma cleared of a substance per unit time", correct: true },
+                { text: "Amount of substance filtered per unit time", correct: false },
+                { text: "Amount of substance excreted in urine", correct: false },
+                { text: "Fractional reabsorption of a solute", correct: false },
+                { text: "Volume of urine produced per minute", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is true about acid-base regulation in the kidney?",
+            answers: [
+                { text: "New bicarbonate is generated by glutamine metabolism in tubular cells", correct: true },
+                { text: "H⁺ is reabsorbed in the proximal tubule", correct: false },
+                { text: "HCO₃⁻ is secreted into the lumen in exchange for Na⁺", correct: false },
+                { text: "Ammonium is reabsorbed in the collecting duct", correct: false },
+                { text: "Distal tubule is impermeable to hydrogen ions", correct: false },
+            ]
+        },
+        {
+            question: "A patient’s urine sample shows proteinuria and red blood cells under microscopic examination. Which part of the nephron is most likely damaged? 241",
+            answers: [
+                { text: "Glomerular filtration barrier", correct: true },
+                { text: "Proximal convoluted tubule", correct: false },
+                { text: "Distal convoluted tubule", correct: false },
+                { text: "Loop of Henle", correct: false },
+                { text: "Collecting duct", correct: false },
+            ]
+        },
+        {
+            question: "In a healthy individual, which of the following findings is normal in urine?",
+            answers: [
+                { text: "Protein traces", correct: true },
+                { text: "Glucose", correct: false },
+                { text: "Ketone bodies", correct: false },
+                { text: "RBCs", correct: false },
+                { text: "Bile salts", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following changes would occur in hyperaldosteronism (Conn’s syndrome)?",
+            answers: [
+                { text: "Hypernatremia and alkalosis", correct: true },
+                { text: "Hyponatremia and acidosis", correct: false },
+                { text: "Hyperkalemia and acidosis", correct: false },
+                { text: "Hyponatremia and hyperkalemia", correct: false },
+                { text: "Hypercalcemia and acidosis", correct: false },
+            ]
+        },
+        {
+            question: "If both afferent and efferent arterioles constrict, but the efferent arteriole constricts more strongly, what happens to GFR and renal plasma flow (RPF)?",
+            answers: [
+                { text: "GFR increases; RPF decreases", correct: true },
+                { text: "GFR decreases; RPF increases", correct: false },
+                { text: "GFR and RPF both increase", correct: false },
+                { text: "GFR and RPF both decrease", correct: false },
+                { text: "GFR remains constant; RPF decreases", correct: false },
+            ]
+        },
+        {
+            question: "Adaptive immunity differs from innate immunity primarily because it:",
+            answers: [
+                { text: "Provides specific and long-lasting protection", correct: true },
+                { text: "Lacks memory", correct: false },
+                { text: "Acts immediately upon infection", correct: false },
+                { text: "Is limited to physical barriers", correct: false },
+                { text: "Functions only through phagocytosis", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following cells are primarily responsible for cell-mediated immunity?",
+            answers: [
+                { text: "T cytotoxic (CD8⁺) lymphocytes", correct: true },
+                { text: "B lymphocytes", correct: false },
+                { text: "T helper (CD4⁺) lymphocytes", correct: false },
+                { text: "Plasma cells", correct: false },
+                { text: "Macrophages", correct: false },
+            ]
+        },
+        {
+            question: "Vigorous physical activity (such as exercise or hard labor) increases the body's demand for oxygen. The first-line physiologic response to this demand is an increase in heart rate, breathing rate, and depth of breathing. During heavy exercise, dyspnea will appear when the dyspneic index will fall just below?",
+            answers: [
+                { text: "0.7", correct: true },
+                { text: "0.85", correct: false },
+                { text: "0.6", correct: false },
+                { text: "0.4", correct: false },
+            ]
+        },
+        {
+            question: "Which of following energy systems uses almost entirely in muscle metabolism during 100-meter dash",
+            answers: [
+                { text: "Phosphagen system", correct: true },
+                { text: "Aerobic system", correct: false },
+                { text: "Glycogen-Lactic acid system", correct: false },
+                { text: "ATP system", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is not a component of the innate immune system?",
+            answers: [
+                { text: "T lymphocytes", correct: true },
+                { text: "Complement system", correct: false },
+                { text: "Interferons", correct: false },
+                { text: "Natural killer (NK) cells", correct: false },
+                { text: "Phagocytes", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following pairs is correctly matched regarding immunity type?",
+            answers: [
+                { text: "Active artificial – vaccination", correct: true },
+                { text: "Active natural – maternal antibody transfer", correct: false },
+                { text: "Passive artificial – infection recovery", correct: false },
+                { text: "Passive natural – vaccination", correct: false },
+                { text: "Active artificial – breast milk", correct: false },
+            ]
+        },
+        {
+            question: "What is the term for the ability of the immune system to remember and respond more effectively to a previously encountered pathogen?",
+            answers: [
+                { text: "Immune memory", correct: true },
+                { text: "Adaptive immunity.", correct: false },
+                { text: "Inflammation", correct: false },
+                { text: "Passive immunity", correct: false },
+                { text: "Immune suppression", correct: false },
+            ]
+        },
+        {
+            question: "A patient develops serum sickness after receiving antiserum. This type of immune reaction is mediated primarily by:",
+            answers: [
+                { text: "Activation of complement by antigen–antibody complexes", correct: true },
+                { text: "Direct cytotoxicity by CD8⁺ cells", correct: false },
+                { text: "Activation of mast cells by IgE", correct: false },
+                { text: "Phagocytosis by macrophages", correct: false },
+                { text: "Memory T-cell activation", correct: false },
+            ]
+        },
+        {
+            question: "Which part of the brain acts as the principal center for thermoregulation in humans?",
+            answers: [
+                { text: "Hypothalamus", correct: true },
+                { text: "Cerebral cortex", correct: false },
+                { text: "Medulla oblongata", correct: false },
+                { text: "Cerebellum", correct: false },
+                { text: "Pons", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following responses is most likely to occur when core body temperature decreases?",
+            answers: [
+                { text: "Shivering and vasoconstriction", correct: true },
+                { text: "Cutaneous vasodilation", correct: false },
+                { text: "Decreased muscle tone", correct: false },
+                { text: "Sweating", correct: false },
+                { text: "Bradycardia", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following describes a behavioral mechanism of thermoregulation?",
+            answers: [
+                { text: "Adjusting clothing or seeking shade", correct: true },
+                { text: "Shivering", correct: false },
+                { text: "Vasoconstriction", correct: false },
+                { text: "Sweating", correct: false },
+                { text: "Piloerection", correct: false },
+            ]
+        },
+        {
+            question: "In cold exposure, which hormonal response enhances long-term heat production?",
+            answers: [
+                { text: "Increased secretion of thyroxine and catecholamines", correct: true },
+                { text: "Decreased cortisol levels", correct: false },
+                { text: "Decreased epinephrine release", correct: false },
+                { text: "Decreased thyroid activity", correct: false },
+                { text: "Increased insulin secretion", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is a local cutaneous thermal reflex?",
+            answers: [
+                { text: "Vasodilation due to local heating of skin", correct: true },
+                { text: "Central activation of shivering", correct: false },
+                { text: "Sweating mediated by hypothalamus", correct: false },
+                { text: "Piloerection due to emotional stress", correct: false },
+                { text: "Increased thyroid hormone secretion", correct: false },
+            ]
+        },
+        {
+            question: "A runner experiences profuse sweating but minimal heat loss due to high humidity. What mechanism explains this?",
+            answers: [
+                { text: "Impaired evaporative cooling", correct: true },
+                { text: "Increased radiation", correct: false },
+                { text: "Increased conduction", correct: false },
+                { text: "Enhanced convection", correct: false },
+                { text: "Reduced metabolic rate", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following correctly describes heat stroke?",
+            answers: [
+                { text: "Failure of thermoregulatory mechanisms leading to dangerous hyperthermia", correct: true },
+                { text: "Mild increase in body temperature with profuse sweating", correct: false },
+                { text: "Shivering with peripheral vasoconstriction", correct: false },
+                { text: "Central hypothalamic cooling leading to fever", correct: false },
+                { text: "Compensated rise in temperature due to infection", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following mechanisms is most important in preventing a dangerous fall in core temperature during prolonged cold exposure?",
+            answers: [
+                { text: "Decreased cutaneous blood flow", correct: true },
+                { text: "Decreased secretion of catecholamines", correct: false },
+                { text: "Increased evaporation from the skin", correct: false },
+                { text: "Enhanced conduction through air", correct: false },
+                { text: "Vasodilation of peripheral vessels", correct: false },
+            ]
+        },
+        {
+            question: "The basal ganglia play an important role in motor control by:",
+            answers: [
+                { text: "Refining and scaling voluntary movements", correct: true },
+                { text: "Directly initiating muscle contraction", correct: false },
+                { text: "Coordinating eye and head movements", correct: false },
+                { text: "Controlling autonomic reflexes", correct: false },
+                { text: "Regulating spinal reflex arcs", correct: false },
+            ]
+        },
+        {
+            question: "The vestibulocerebellum (flocculonodular lobe) is primarily responsible for:",
+            answers: [
+                { text: "Control of posture and balance", correct: true },
+                { text: "Regulation of fine finger movements", correct: false },
+                { text: "Planning complex movements", correct: false },
+                { text: "Muscle tone adjustment in limbs", correct: false },
+                { text: "Learning new motor skills", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following structures is most important for maintaining muscle tone?",
+            answers: [
+                { text: "Reticular formation", correct: true },
+                { text: "Thalamus", correct: false },
+                { text: "Hippocampus", correct: false },
+                { text: "Visual cortex", correct: false },
+                { text: "Hypothalamus", correct: false },
+            ]
+        },
+        {
+            question: "Damage to the cerebellum causes which of the following characteristic features?",
+            answers: [
+                { text: "Intention tremor and dysmetria", correct: true },
+                { text: "Spastic paralysis", correct: false },
+                { text: "Tremor at rest", correct: false },
+                { text: "Rigidity and bradykinesia", correct: false },
+                { text: "Loss of proprioception", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is an example of a negative feedback mechanism?",
+            answers: [
+                { text: "Shivering during cold exposure", correct: true },
+                { text: "Uterine contractions during childbirth", correct: false },
+                { text: "Milk ejection reflex", correct: false },
+                { text: "LH surge before ovulation", correct: false },
+                { text: "Blood clotting cascade", correct: false },
+            ]
+        },
+        {
+            question: "Which system acts as the rapid control system for maintaining internal environment stability?",
+            answers: [
+                { text: "Nervous system", correct: true },
+                { text: "Endocrine system", correct: false },
+                { text: "Immune system", correct: false },
+                { text: "Cardiovascular system", correct: false },
+                { text: "Respiratory system", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following statements regarding somatic sensations is true?",
+            answers: [
+                { text: "They include touch, pressure, temperature, and pain sensations", correct: true },
+                { text: "They are mediated only by cranial nerves", correct: false },
+                { text: "They arise only from internal organs", correct: false },
+                { text: "They are processed in the cerebellum", correct: false },
+                { text: "They depend exclusively on motor neuron activity", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following sensory receptors is responsible for detecting fine touch and texture?",
+            answers: [
+                { text: "Merkel’s discs", correct: true },
+                { text: "Ruffini endings", correct: false },
+                { text: "Pacinian corpuscles", correct: false },
+                { text: "Free nerve endings", correct: false },
+                { text: "Golgi tendon organs", correct: false },
+            ]
+        },
+        {
+            question: "Pain due to tissue injury and inflammation is mediated mainly by:",
+            answers: [
+                { text: "Bradykinin and prostaglandins", correct: true },
+                { text: "Dopamine and serotonin", correct: false },
+                { text: "GABA and glycine", correct: false },
+                { text: "Histamine and acetylcholine", correct: false },
+                { text: "Norepinephrine and epinephrine", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is true about headache caused by tension or muscle contraction?",
+            answers: [
+                { text: "Due to sustained contraction of neck and scalp muscles", correct: true },
+                { text: "Originates from meningeal irritation", correct: false },
+                { text: "Caused by distension of intracranial arteries", correct: false },
+                { text: "Associated with elevated intracranial pressure", correct: false },
+                { text: "Caused by activation of parasympathetic fibers", correct: false },
+            ]
+        },
+        {
+            question: "At high altitude, the main stimulus that increases ventilation is:",
+            answers: [
+                { text: "Decreased arterial PO₂", correct: true },
+                { text: "Increased arterial PO₂", correct: false },
+                { text: "Decreased arterial PCO₂", correct: false },
+                { text: "Increased blood pH", correct: false },
+                { text: "Increased bicarbonate concentration", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following acute physiological changes occurs during ascent to high altitude?",
+            answers: [
+                { text: "Increased erythropoietin secretion", correct: true },
+                { text: "Decreased pulmonary ventilation", correct: false },
+                { text: "Increased plasma bicarbonate concentration", correct: false },
+                { text: "Decreased heart rate", correct: false },
+                { text: "Increased arterial PO₂", correct: false },
+            ]
+        },
+        {
+            question: "During moderate exercise, which of the following changes occurs?",
+            answers: [
+                { text: "Decreased sympathetic activity", correct: true },
+                { text: "Decreased cardiac output", correct: false },
+                { text: "Increased total peripheral resistance", correct: false },
+                { text: "Decreased oxygen consumption", correct: false },
+                { text: "Decreased sympathetic activity", correct: false },
+            ]
+        },
+        {
+            question: "Leptin, a hormone secreted by adipocytes, primarily acts to:",
+            answers: [
+                { text: "Inhibit appetite and increase energy expenditure", correct: true },
+                { text: "Stimulate appetite", correct: false },
+                { text: "Promote fat storage", correct: false },
+                { text: "Increase insulin secretion", correct: false },
+                { text: "Stimulate glycogen breakdown", correct: false },
+            ]
+        },
+        {
+            question: "At high altitude, after several days of acclimatization, arterial oxygen content remains subnormal despite increased ventilation. Which of the following best explains this finding?",
+            answers: [
+                { text: "Reduced partial pressure of inspired oxygen", correct: true },
+                { text: "Decreased alveolar ventilation due to hypocapnia", correct: false },
+                { text: "Decreased diffusion capacity of alveolar membrane", correct: false },
+                { text: "Right shift of the oxygen–hemoglobin dissociation curve", correct: false },
+                { text: "Increased hemoglobin affinity for oxygen", correct: false },
+            ]
+        },
+        {
+            question: "During chronic exposure to altitude, which of the following contributes most to the increase in oxygen delivery to tissues?",
+            answers: [
+                { text: "Polycythemia with increased blood oxygen-carrying capacity", correct: true },
+                { text: "Increased alveolar ventilation", correct: false },
+                { text: "Elevated cardiac output", correct: false },
+                { text: "Decreased oxygen affinity of hemoglobin", correct: false },
+                { text: "Enhanced pulmonary diffusion capacity", correct: false },
+            ]
+        },
+        {
+            question: "According to Poiseuille’s law, the resistance to laminar blood flow is inversely proportional to which of the following?",
+            answers: [
+                { text: "Vessel radius to the fourth power", correct: true },
+                { text: "Vessel radius", correct: false },
+                { text: "Vessel length", correct: false },
+                { text: "Blood viscosity", correct: false },
+                { text: "Pressure difference", correct: false },
+            ]
+        },
+        {
+            question: "If the radius of a blood vessel is reduced by half, the resistance to flow increases by:",
+            answers: [
+                { text: "16 times", correct: true },
+                { text: "2 times", correct: false },
+                { text: "4 times", correct: false },
+                { text: "8 times", correct: false },
+                { text: "20 times", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is the most important short-term mechanism regulating arterial blood pressure?",
+            answers: [
+                { text: "Baroreceptor reflex", correct: true },
+                { text: "Renin–angiotensin–aldosterone system", correct: false },
+                { text: "Capillary fluid shift mechanism", correct: false },
+                { text: "Vasopressin (ADH) release", correct: false },
+                { text: "Atrial natriuretic peptide (ANP)", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following factors will decrease blood viscosity and therefore increase blood flow?",
+            answers: [
+                { text: "Anemia", correct: true },
+                { text: "Polycythemia", correct: false },
+                { text: "Increased plasma protein concentration", correct: false },
+                { text: "Dehydration", correct: false },
+                { text: "Increased hematocrit", correct: false },
+            ]
+        },
+        ];
+
+        // Quiz state
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let isExamMode = false;
+        let isDarkMode = false;
+        let isAnswerMode = false;
+        let isQuestionShuffleMode = false; // NEW: Question shuffle mode for non-exam
+        let isQuestionShuffleEnabled = false; // NEW: Question shuffle for exam mode
+        let timerInterval = null;
+        let timerActive = false;
+        let timerExpired = false;
+        let totalQuestions = questions.length;
+        let selectedQuestionCount = questions.length;
+        let examGridExpanded = true;
+        let originalQuestionOrder = []; // NEW: Store original question order
+        let shuffledQuestionOrder = []; // NEW: Store shuffled question order
+        let currentQuestionOrder = []; // NEW: Current active question order
+
+        // NEW: Shuffle array function
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // NEW: Shuffle options for a question
+        function shuffleQuestionOptions(question) {
+            const shuffledAnswers = shuffleArray(question.answers);
+            return {
+                ...question,
+                answers: shuffledAnswers
+            };
+        }
+
+        // Initialize quiz
+        function initializeQuiz() {
+            // Initialize question orders
+            originalQuestionOrder = Array.from({length: questions.length}, (_, i) => i);
+            shuffledQuestionOrder = shuffleArray(originalQuestionOrder);
+            currentQuestionOrder = [...originalQuestionOrder];
+            
+            userAnswers = new Array(questions.length).fill(null);
+            loadQuestion();
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // Load current question with option shuffling
+        function loadQuestion() {
+            const questionIndex = currentQuestionOrder[currentQuestionIndex];
+            const originalQuestion = questions[questionIndex];
+            
+            // NEW: Always shuffle options when loading a question
+            const question = shuffleQuestionOptions(originalQuestion);
+            
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1}`;
+            document.getElementById('questionCounter').textContent = `${currentQuestionIndex + 1} / ${selectedQuestionCount}`;
+            document.getElementById('questionText').textContent = question.question;
+
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+
+            question.answers.forEach((answer, index) => {
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'answer-option';
+                answerDiv.onclick = () => selectAnswer(index, answer.correct);
+
+                const optionLabel = document.createElement('div');
+                optionLabel.className = 'option-label';
+                optionLabel.textContent = String.fromCharCode(65 + index); // A, B, C, D
+
+                const optionText = document.createElement('div');
+                optionText.className = 'option-text';
+                optionText.textContent = answer.text;
+
+                answerDiv.appendChild(optionLabel);
+                answerDiv.appendChild(optionText);
+                answersContainer.appendChild(answerDiv);
+
+                // Restore previous selection
+                if (userAnswers[questionIndex] !== null && userAnswers[questionIndex].selectedIndex === index) {
+                    answerDiv.classList.add('selected');
+                }
+
+                // Apply answer mode styling if active and not in exam mode
+                if (isAnswerMode && !isExamMode) {
+                    if (answer.correct) {
+                        answerDiv.classList.add('correct-answer-mode');
+                    } else {
+                        answerDiv.classList.add('other-answer-mode');
+                    }
+                }
+
+                // Apply timer expired styling
+                if (timerExpired) {
+                    answerDiv.classList.add('timer-expired');
+                }
+            });
+
+            updateQuestionGrid();
+            updateMobileQuestionGrid();
+            updateExamQuestionGrid();
+        }
+
+        // Select answer with correct answer tracking
+        function selectAnswer(answerIndex, isCorrect) {
+            if (timerExpired) return;
+
+            const questionIndex = currentQuestionOrder[currentQuestionIndex];
+            const answerOptions = document.querySelectorAll('.answer-option');
+            
+            // In exam mode, ensure only one option can be selected (radio button behavior)
+            if (isExamMode) {
+                answerOptions.forEach(option => option.classList.remove('selected'));
+            }
+
+            // Store the answer with correctness info
+            userAnswers[questionIndex] = {
+                selectedIndex: answerIndex,
+                isCorrect: isCorrect
+            };
+
+            // Update visual selection
+            answerOptions[answerIndex].classList.add('selected');
+
+            // In non-exam mode, show immediate feedback
+            if (!isExamMode) {
+                const originalQuestion = questions[questionIndex];
+                answerOptions.forEach((option, index) => {
+                    option.classList.remove('correct', 'incorrect');
+                    // Find the correct answer in the shuffled options
+                    const currentAnswers = Array.from(document.querySelectorAll('.option-text')).map(el => el.textContent);
+                    const correctAnswerText = originalQuestion.answers.find(a => a.correct).text;
+                    const correctIndex = currentAnswers.indexOf(correctAnswerText);
+                    
+                    if (index === correctIndex) {
+                        option.classList.add('correct');
+                    } else if (index === answerIndex) {
+                        option.classList.add('incorrect');
+                    }
+                    option.classList.add('disabled');
+                });
+            }
+
+            updateQuestionGrid();
+            updateMobileQuestionGrid();
+            updateExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // Navigation functions
+        function nextQuestion() {
+            if (currentQuestionIndex < selectedQuestionCount - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function jumpToQuestion(questionIndex) {
+            if (questionIndex < selectedQuestionCount) {
+                currentQuestionIndex = questionIndex;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function jumpToQuestionNumber() {
+            const input = document.getElementById('jumpInput');
+            const questionNumber = parseInt(input.value);
+            
+            if (questionNumber >= 1 && questionNumber <= selectedQuestionCount) {
+                jumpToQuestion(questionNumber - 1);
+                input.value = '';
+            } else {
+                alert(`Please enter a number between 1 and ${selectedQuestionCount}`);
+            }
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const finishBtn = document.getElementById('finishBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === selectedQuestionCount - 1) {
+                nextBtn.style.display = 'none';
+                if (isExamMode) {
+                    submitBtn.style.display = 'inline-block';
+                    finishBtn.style.display = 'none';
+                } else {
+                    finishBtn.style.display = 'inline-block';
+                    submitBtn.style.display = 'none';
+                }
+            } else {
+                nextBtn.style.display = 'inline-block';
+                finishBtn.style.display = 'none';
+                submitBtn.style.display = 'none';
+            }
+
+            // Show submit button in exam mode for instant results
+            if (isExamMode && currentQuestionIndex < selectedQuestionCount - 1) {
+                submitBtn.style.display = 'inline-block';
+            }
+        }
+
+        // Question grid functions
+        function createQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function createMobileQuestionGrid() {
+            const grid = document.getElementById('mobileQuestionGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function createExamQuestionGrid() {
+            const grid = document.getElementById('examGridContainer');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'exam-grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function updateQuestionGrid() {
+            const gridItems = document.querySelectorAll('#questionGrid .grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered', 'correct', 'incorrect');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    if (isExamMode) {
+                        item.classList.add('answered');
+                    } else {
+                        // NEW: Check correctness for normal mode
+                        if (userAnswers[questionIndex].isCorrect) {
+                            item.classList.add('correct');
+                        } else {
+                            item.classList.add('incorrect');
+                        }
+                    }
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        function updateMobileQuestionGrid() {
+            const gridItems = document.querySelectorAll('#mobileQuestionGrid .grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered', 'correct', 'incorrect');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    if (isExamMode) {
+                        item.classList.add('answered');
+                    } else {
+                        // NEW: Check correctness for normal mode
+                        if (userAnswers[questionIndex].isCorrect) {
+                            item.classList.add('correct');
+                        } else {
+                            item.classList.add('incorrect');
+                        }
+                    }
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        function updateExamQuestionGrid() {
+            const gridItems = document.querySelectorAll('#examGridContainer .exam-grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    item.classList.add('answered');
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        // Mobile dropdown functions
+        function toggleMobileDropdown() {
+            const content = document.getElementById('dropdownContent');
+            const arrow = document.getElementById('dropdownArrow');
+            
+            content.classList.toggle('expanded');
+            arrow.classList.toggle('expanded');
+        }
+
+        // Exam grid toggle functions
+        function toggleExamGrid() {
+            const container = document.getElementById('examGridContainer');
+            const toggle = document.getElementById('examGridToggle');
+            
+            examGridExpanded = !examGridExpanded;
+            
+            if (examGridExpanded) {
+                container.classList.remove('collapsed');
+                toggle.textContent = 'Collapse';
+            } else {
+                container.classList.add('collapsed');
+                toggle.textContent = 'Expand';
+            }
+        }
+
+        // Mode toggle functions
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            const btn = document.getElementById('darkModeBtn');
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                btn.classList.add('active');
+                btn.textContent = '☀️ Light Mode';
+            } else {
+                document.body.classList.remove('dark-mode');
+                btn.classList.remove('active');
+                btn.textContent = '🌙 Dark Mode';
+            }
+        }
+
+        function toggleAnswerMode() {
+            isAnswerMode = !isAnswerMode;
+            const btn = document.getElementById('answerModeBtn');
+            
+            if (isAnswerMode) {
+                btn.classList.add('active');
+                btn.textContent = '🔒 Hide Answers';
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '💡 Answer Mode';
+            }
+            
+            loadQuestion(); // Reload to apply answer mode styling
+        }
+
+        // NEW: Question shuffle mode for non-exam mode
+        function toggleQuestionShuffleMode() {
+            isQuestionShuffleMode = !isQuestionShuffleMode;
+            const btn = document.getElementById('questionShuffleModeBtn');
+            
+            if (isQuestionShuffleMode) {
+                btn.classList.add('active');
+                btn.textContent = '🔀 Shuffle: ON';
+                currentQuestionOrder = [...shuffledQuestionOrder];
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '🔀 Shuffle Questions';
+                currentQuestionOrder = [...originalQuestionOrder];
+            }
+            
+            // Reset to first question and reload
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // NEW: Question shuffle toggle for exam mode
+        function toggleQuestionShuffle() {
+            isQuestionShuffleEnabled = !isQuestionShuffleEnabled;
+            const btn = document.getElementById('shuffleToggleBtn');
+            const settings = document.querySelector('.question-shuffle-settings');
+            const display = document.getElementById('questionShuffleDisplay');
+            const displayText = document.getElementById('shuffleDisplayText');
+            const resetBtn = document.getElementById('shuffleResetBtn');
+            
+            if (isQuestionShuffleEnabled) {
+                btn.classList.add('active');
+                btn.textContent = 'Enabled';
+                settings.classList.add('hidden');
+                display.classList.add('active');
+                displayText.textContent = 'Shuffle: ON';
+                resetBtn.classList.add('visible');
+                
+                // Apply shuffle
+                currentQuestionOrder = [...shuffledQuestionOrder];
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = 'Enable';
+                settings.classList.remove('hidden');
+                display.classList.remove('active');
+                displayText.textContent = 'Shuffle: Off';
+                resetBtn.classList.remove('visible');
+                
+                // Restore original order
+                currentQuestionOrder = [...originalQuestionOrder];
+            }
+            
+            // Reset to first question and reload
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // NEW: Reset question shuffle
+        function resetQuestionShuffle() {
+            isQuestionShuffleEnabled = false;
+            const btn = document.getElementById('shuffleToggleBtn');
+            const settings = document.querySelector('.question-shuffle-settings');
+            const display = document.getElementById('questionShuffleDisplay');
+            const displayText = document.getElementById('shuffleDisplayText');
+            const resetBtn = document.getElementById('shuffleResetBtn');
+            
+            btn.classList.remove('active');
+            btn.textContent = 'Enable';
+            settings.classList.remove('hidden');
+            display.classList.remove('active');
+            displayText.textContent = 'Shuffle: Off';
+            resetBtn.classList.remove('visible');
+            
+            // Restore original order
+            currentQuestionOrder = [...originalQuestionOrder];
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        function toggleExamMode() {
+            isExamMode = !isExamMode;
+            const btn = document.getElementById('examModeBtn');
+            const exitBtn = document.getElementById('exitBtnText');
+            const title = document.querySelector('.title');
+            
+            if (isExamMode) {
+                document.body.classList.add('exam-mode');
+                btn.classList.add('active');
+                btn.textContent = '📝 Exit Exam Mode';
+                exitBtn.textContent = 'Exit Exam Mode';
+                title.textContent = 'EXAM MODE';
+                
+                // Reset all answers and reload
+                userAnswers = new Array(questions.length).fill(null);
+                currentQuestionIndex = 0;
+                loadQuestion();
+                updateNavigationButtons();
+            } else {
+                document.body.classList.remove('exam-mode');
+                btn.classList.remove('active');
+                btn.textContent = '🎓 Simulate Exam Mode';
+                exitBtn.textContent = 'Exit';
+                title.textContent = 'Enhanced Quiz Application';
+                
+                loadQuestion(); // Reload to remove exam mode styling
+            }
+        }
+
+        // NEW: Enhanced question count functions
+        function setQuestionCount() {
+            const input = document.getElementById('questionCountInput');
+            const newCount = parseInt(input.value) || questions.length;
+            
+            if (newCount < 1 || newCount > questions.length) {
+                alert(`Please enter a number between 1 and ${questions.length}`);
+                input.value = selectedQuestionCount;
+                return;
+            }
+            
+            selectedQuestionCount = newCount;
+            
+            // Hide settings and show display
+            const settings = document.querySelector('.question-count-settings');
+            const display = document.getElementById('questionCountDisplay');
+            const displayText = document.getElementById('countDisplayText');
+            const resetBtn = document.getElementById('countResetDisplayBtn');
+            
+            settings.classList.add('hidden');
+            displayText.textContent = `${selectedQuestionCount} / ${questions.length}`;
+            resetBtn.classList.add('visible');
+            
+            // Reset quiz state
+            userAnswers = new Array(questions.length).fill(null);
+            currentQuestionIndex = 0;
+            
+            // Update UI
+            document.getElementById('questionCounter').textContent = `1 / ${selectedQuestionCount}`;
+            document.getElementById('jumpInput').max = selectedQuestionCount;
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            loadQuestion();
+            updateNavigationButtons();
+        }
+
+        // NEW: Reset question count
+        function resetQuestionCount() {
+            selectedQuestionCount = questions.length;
+            
+            // Show settings and hide display
+            const settings = document.querySelector('.question-count-settings');
+            const display = document.getElementById('questionCountDisplay');
+            const displayText = document.getElementById('countDisplayText');
+            const resetBtn = document.getElementById('countResetDisplayBtn');
+            const input = document.getElementById('questionCountInput');
+            
+            settings.classList.remove('hidden');
+            displayText.textContent = `${questions.length} / ${questions.length}`;
+            resetBtn.classList.remove('visible');
+            input.value = questions.length;
+            
+            // Reset quiz state
+            userAnswers = new Array(questions.length).fill(null);
+            currentQuestionIndex = 0;
+            
+            // Update UI
+            document.getElementById('questionCounter').textContent = `1 / ${selectedQuestionCount}`;
+            document.getElementById('jumpInput').max = selectedQuestionCount;
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            loadQuestion();
+            updateNavigationButtons();
+        }
+
+        // Timer functions
+        function startTimer() {
+            const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+            const seconds = parseInt(document.getElementById('secondsInput').value) || 0;
+            const totalSeconds = minutes * 60 + seconds;
+
+            if (totalSeconds <= 0) {
+                alert('Please set a valid time');
+                return;
+            }
+
+            timerActive = true;
+            timerExpired = false;
+            let remainingTime = totalSeconds;
+
+            const timer = document.getElementById('timer');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerResetBtn = document.getElementById('timerResetBtn');
+            const timerSettings = document.querySelector('.timer-settings');
+
+            timer.classList.add('active');
+            timerResetBtn.classList.add('visible');
+            timerSettings.classList.add('hidden');
+
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    timerExpired = true;
+                    timerActive = false;
+                    timer.classList.remove('active');
+                    timerDisplay.textContent = 'Time expired!';
+                    
+                    // Show timer expired overlay
+                    document.getElementById('timerExpiredOverlay').classList.add('visible');
+                    document.getElementById('quizSection').classList.add('timer-expired');
+                    
+                    // Auto-submit quiz
+                    setTimeout(() => {
+                        finishQuiz();
+                    }, 3000);
+                }
+
+                remainingTime--;
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerActive = false;
+            timerExpired = false;
+
+            const timer = document.getElementById('timer');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerResetBtn = document.getElementById('timerResetBtn');
+            const timerSettings = document.querySelector('.timer-settings');
+
+            timer.classList.remove('active');
+            timerResetBtn.classList.remove('visible');
+            timerSettings.classList.remove('hidden');
+            timerDisplay.textContent = 'No timer set';
+
+            document.getElementById('timerExpiredOverlay').classList.remove('visible');
+            document.getElementById('quizSection').classList.remove('timer-expired');
+
+            loadQuestion(); // Reload to remove timer expired styling
+        }
+
+        function hideTimerExpiredOverlay() {
+            document.getElementById('timerExpiredOverlay').classList.remove('visible');
+        }
+
+        // Quiz completion
+        function finishQuiz() {
+            const answeredQuestions = userAnswers.slice(0, selectedQuestionCount).filter(answer => answer !== null).length;
+            const correctAnswers = userAnswers.slice(0, selectedQuestionCount).reduce((count, answer, index) => {
+                if (answer !== null && answer.isCorrect) {
+                    return count + 1;
+                }
+                return count;
+            }, 0);
+
+            const percentage = Math.round((correctAnswers / selectedQuestionCount) * 100);
+            const passed = percentage >= 60;
+
+            if (isExamMode) {
+                // Show result overlay for exam mode
+                const resultOverlay = document.getElementById('resultOverlay');
+                const resultMessage = document.getElementById('resultMessage');
+                const resultTitle = document.getElementById('resultTitle');
+                const resultStats = document.getElementById('resultStats');
+
+                resultTitle.textContent = passed ? '🎉 PASSED!' : '❌ FAILED';
+                resultTitle.className = `result-title ${passed ? 'passed' : 'failed'}`;
+                resultMessage.className = `result-message ${passed ? 'passed' : 'failed'}`;
+
+                resultStats.innerHTML = `
+                    <strong>Questions Answered:</strong> ${answeredQuestions} / ${selectedQuestionCount}<br>
+                    <strong>Correct Answers:</strong> ${correctAnswers} / ${selectedQuestionCount}<br>
+                    <strong>Percentage:</strong> ${percentage}%<br><br>
+                    <em>${passed ? 'Congratulations! You passed the exam.' : 'You need 60% to pass. Better luck next time!'}</em>
+                `;
+
+                resultOverlay.classList.add('visible');
+            } else {
+                // Show alert for normal mode
+                let message = `Quiz Completed!\n\n`;
+                message += `Questions Answered: ${answeredQuestions} / ${selectedQuestionCount}\n`;
+                message += `Correct Answers: ${correctAnswers} / ${selectedQuestionCount}\n`;
+                message += `Percentage: ${percentage}%`;
+
+                alert(message);
+            }
+        }
+
+        function hideResultOverlay() {
+            document.getElementById('resultOverlay').classList.remove('visible');
+        }
+
+        function exitQuiz() {
+            if (isExamMode) {
+                toggleExamMode();
+            } else {
+                if (confirm('Are you sure you want to exit the quiz?')) {
+                    window.close();
+                }
+            }
+        }
+
+        // Initialize the quiz when page loads
+        document.addEventListener('DOMContentLoaded', initializeQuiz);
+    </script>
+</body>
+</html>
